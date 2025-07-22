@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DateReportCard from '@/components/DateReportCard';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { AlertModal } from '@/components/AlertModal';
 
 interface Patient {
   id: number;
@@ -308,6 +310,14 @@ export default function PatientDetailPage() {
   const [activeTab, setActiveTab] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Modal states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteDate, setDeleteDate] = useState<string>('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [alertTitle, setAlertTitle] = useState('');
+
   const fetchPatientData = useCallback(async () => {
     try {
       const response = await fetch(`/api/patients/${patientId}`);
@@ -422,17 +432,26 @@ export default function PatientDetailPage() {
     });
   };
 
+  // Helper functions for modals
+  const showAlertModal = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertType(type);
+    setShowAlert(true);
+  };
+
+  const handleDeleteReportClick = (date: string) => {
+    setDeleteDate(date);
+    setShowDeleteConfirm(true);
+  };
+
   const handleEditReport = (date: string) => {
     router.push(`/patients/${patientId}/edit-report?date=${date}`);
   };
 
-  const handleDeleteReport = async (date: string) => {
-    if (!confirm(`Are you sure you want to delete all reports for ${formatDate(date)}? This action cannot be undone.`)) {
-      return;
-    }
-
+  const handleDeleteReport = async () => {
     try {
-      const response = await fetch(`/api/patients/${patientId}/reports/date/${date}`, {
+      const response = await fetch(`/api/patients/${patientId}/reports/date/${deleteDate}`, {
         method: 'DELETE',
       });
 
@@ -441,13 +460,20 @@ export default function PatientDetailPage() {
       if (result.success) {
         // Refresh the reports data
         fetchPatientReports();
-        alert(`Successfully deleted ${result.deletedCount} report(s) for ${formatDate(date)}`);
+        showAlertModal(
+          'Success', 
+          `Successfully deleted ${result.deletedCount} report(s) for ${formatDate(deleteDate)}`, 
+          'success'
+        );
       } else {
-        alert(`Failed to delete reports: ${result.error}`);
+        showAlertModal('Error', `Failed to delete reports: ${result.error}`, 'error');
       }
     } catch (error) {
       console.error('Error deleting reports:', error);
-      alert('Failed to delete reports. Please try again.');
+      showAlertModal('Error', 'Failed to delete reports. Please try again.', 'error');
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteDate('');
     }
   };
 
@@ -564,12 +590,37 @@ export default function PatientDetailPage() {
                 formatDate={formatDate}
                 patientId={patientId}
                 onEdit={handleEditReport}
-                onDelete={handleDeleteReport}
+                onDelete={handleDeleteReportClick}
               />
             ))
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal for Delete */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeleteDate('');
+        }}
+        onConfirm={handleDeleteReport}
+        title="Delete Reports"
+        isDestructive={true}
+        confirmText="Delete"
+      >
+        <p>Are you sure you want to delete all reports for {deleteDate ? formatDate(deleteDate) : ''}?</p>
+        <p className="text-red-600 dark:text-red-400 font-medium mt-2">This action cannot be undone.</p>
+      </ConfirmationModal>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        type={alertType}
+      />
     </div>
   );
 }

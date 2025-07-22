@@ -26,6 +26,32 @@ export interface ReportWithCategory extends Report {
   category_name: string;
 }
 
+// Check if a report already exists for the same patient, parameter, and date
+export function checkExistingReport(patientId: number, parameterId: number, reportDate: string, excludeReportId?: number): Report | null {
+  try {
+    const database = getDatabase();
+    initializeDatabase();
+    
+    let query = `
+      SELECT * FROM reports 
+      WHERE patient_id = ? AND parameter_id = ? AND report_date = ?
+    `;
+    const params = [patientId, parameterId, reportDate];
+    
+    // If excludeReportId is provided, exclude that report from the check (for updates)
+    if (excludeReportId !== undefined) {
+      query += ' AND id != ?';
+      params.push(excludeReportId);
+    }
+    
+    const stmt = database.prepare(query);
+    return stmt.get(...params) as Report | null;
+  } catch (error) {
+    console.error('Error checking existing report:', error);
+    return null;
+  }
+}
+
 // Report operations
 export function getAllReports(): ReportWithDetails[] {
   try {
@@ -55,6 +81,17 @@ export function addReport(reportData: Omit<Report, 'id' | 'created_at'>): Report
     const database = getDatabase();
     initializeDatabase();
     
+    // Check if a report already exists for the same patient, parameter, and date
+    const existingReport = checkExistingReport(
+      reportData.patient_id,
+      reportData.parameter_id,
+      reportData.report_date
+    );
+    
+    if (existingReport) {
+      throw new Error(`A report for this date already exists`);
+    }
+    
     const stmt = database.prepare(`
       INSERT INTO reports (patient_id, parameter_id, value, report_date) 
       VALUES (?, ?, ?, ?) RETURNING *
@@ -67,7 +104,7 @@ export function addReport(reportData: Omit<Report, 'id' | 'created_at'>): Report
     ) as Report;
   } catch (error) {
     console.error('Error adding report:', error);
-    return null;
+    throw error; // Re-throw to let the API handle the error message
   }
 }
 
@@ -114,6 +151,36 @@ export function updateReport(id: number, reportData: Partial<Omit<Report, 'id' |
     const database = getDatabase();
     initializeDatabase();
     
+    // Get current report data to check for duplicates
+    const getCurrentReport = database.prepare('SELECT * FROM reports WHERE id = ?');
+    const currentReport = getCurrentReport.get(id) as Report | undefined;
+    
+    if (!currentReport) {
+      console.error('Report not found');
+      return null;
+    }
+    
+    // If date, patient_id, or parameter_id is being updated, check for duplicates
+    if (reportData.report_date !== undefined || 
+        reportData.patient_id !== undefined || 
+        reportData.parameter_id !== undefined) {
+      
+      const targetPatientId = reportData.patient_id ?? currentReport.patient_id;
+      const targetParameterId = reportData.parameter_id ?? currentReport.parameter_id;
+      const targetReportDate = reportData.report_date ?? currentReport.report_date;
+      
+      const existingReport = checkExistingReport(
+        targetPatientId,
+        targetParameterId,
+        targetReportDate,
+        id // Exclude current report from the check
+      );
+      
+      if (existingReport) {
+        throw new Error(`A report for this date already exists`);
+      }
+    }
+    
     // Build dynamic UPDATE query based on provided fields
     const updateFields: string[] = [];
     const updateValues: (string | number)[] = [];
@@ -156,7 +223,7 @@ export function updateReport(id: number, reportData: Partial<Omit<Report, 'id' |
     return stmt.get(...updateValues) as Report;
   } catch (error) {
     console.error('Error updating report:', error);
-    return null;
+    throw error; // Re-throw to let the API handle the error message
   }
 }
 

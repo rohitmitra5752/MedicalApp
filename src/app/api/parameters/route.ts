@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     console.log('API: Adding parameter with data:', { parameter_name, minimum, maximum, unit, description, category_id });
 
-    const parameter = addParameter({
+    const result = addParameter({
       parameter_name: parameter_name.trim(),
       minimum,
       maximum,
@@ -66,18 +66,18 @@ export async function POST(request: NextRequest) {
       category_id
     });
     
-    console.log('API: Parameter creation result:', parameter);
+    console.log('API: Parameter creation result:', result);
     
-    if (!parameter) {
-      console.log('API: Parameter creation failed');
+    if (!result.success) {
+      console.log('API: Parameter creation failed:', result.error);
       return NextResponse.json(
-        { success: false, error: 'Failed to add parameter. Category may not exist.' },
-        { status: 500 }
+        { success: false, error: result.error },
+        { status: 400 }
       );
     }
 
-    console.log('API: Parameter created successfully with ID:', parameter.id);
-    return NextResponse.json({ success: true, parameter }, { status: 201 });
+    console.log('API: Parameter created successfully with ID:', result.parameter?.id);
+    return NextResponse.json({ success: true, parameter: result.parameter }, { status: 201 });
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json(

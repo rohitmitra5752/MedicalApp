@@ -50,6 +50,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, report }, { status: 201 });
   } catch (error) {
     console.error('API Error:', error);
+    
+    // Check if it's a duplicate report error
+    if (error instanceof Error && error.message.includes('A report for this date already exists')) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 409 } // Conflict status code
+      );
+    }
+    
     return NextResponse.json(
       { success: false, error: 'Failed to add report' },
       { status: 500 }

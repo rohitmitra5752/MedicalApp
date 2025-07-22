@@ -20,7 +20,7 @@ export function getAllParameterCategories(): ParameterCategory[] {
   }
 }
 
-export function addParameterCategory(categoryData: Omit<ParameterCategory, 'id' | 'created_at'>): ParameterCategory | null {
+export function addParameterCategory(categoryData: Omit<ParameterCategory, 'id' | 'created_at'>): { success: boolean; category?: ParameterCategory; error?: string } {
   try {
     const database = getDatabase();
     initializeDatabase();
@@ -29,10 +29,24 @@ export function addParameterCategory(categoryData: Omit<ParameterCategory, 'id' 
       INSERT INTO parameter_categories (category_name) 
       VALUES (?) RETURNING *
     `);
-    return stmt.get(categoryData.category_name.trim()) as ParameterCategory;
-  } catch (error) {
+    const category = stmt.get(categoryData.category_name.trim()) as ParameterCategory;
+    
+    return { success: true, category };
+  } catch (error: any) {
     console.error('Error adding parameter category:', error);
-    return null;
+    
+    // Check for unique constraint violation on category_name
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE' && error.message.includes('category_name')) {
+      return { 
+        success: false, 
+        error: `Category name "${categoryData.category_name}" already exists. Please choose a different name.` 
+      };
+    }
+    
+    return { 
+      success: false, 
+      error: 'Failed to create category. Please try again.' 
+    };
   }
 }
 

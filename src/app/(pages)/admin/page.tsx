@@ -269,6 +269,10 @@ export default function AdminPage() {
   // Add submission state to prevent double submissions
   const [isSubmittingParameter, setIsSubmittingParameter] = useState(false);
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
+  
+  // Error states
+  const [parameterError, setParameterError] = useState<string>('');
+  const [categoryError, setCategoryError] = useState<string>('');
 
   // Form states
   const [categoryForm, setCategoryForm] = useState({ category_name: '' });
@@ -325,12 +329,14 @@ export default function AdminPage() {
   const handleAddCategory = () => {
     setCategoryForm({ category_name: '' });
     setEditingCategory(null);
+    setCategoryError(''); // Clear any previous errors
     setShowCategoryModal(true);
   };
 
   const handleEditCategory = (category: ParameterCategory) => {
     setCategoryForm({ category_name: category.category_name });
     setEditingCategory(category);
+    setCategoryError(''); // Clear any previous errors
     setShowCategoryModal(true);
   };
 
@@ -344,6 +350,7 @@ export default function AdminPage() {
       category_id: categoryId
     });
     setEditingParameter(null);
+    setParameterError(''); // Clear any previous errors
     setShowParameterModal(true);
   };
 
@@ -357,6 +364,7 @@ export default function AdminPage() {
       category_id: parameter.category_id
     });
     setEditingParameter(parameter);
+    setParameterError(''); // Clear any previous errors
     setShowParameterModal(true);
   };
 
@@ -368,6 +376,8 @@ export default function AdminPage() {
       return;
     }
     
+    // Clear any previous errors
+    setCategoryError('');
     setIsSubmittingCategory(true);
     console.log('Category form submission started');
     
@@ -390,13 +400,16 @@ export default function AdminPage() {
       if (response.ok) {
         console.log('Category saved successfully');
         setShowCategoryModal(false);
+        setCategoryError('');
         fetchData();
       } else {
         const errorData = await response.json();
         console.error('Category save failed:', errorData);
+        setCategoryError(errorData.error || 'Failed to save category');
       }
     } catch (error) {
       console.error('Error saving category:', error);
+      setCategoryError('Failed to save category. Please try again.');
     } finally {
       setIsSubmittingCategory(false);
     }
@@ -410,6 +423,8 @@ export default function AdminPage() {
       return;
     }
     
+    // Clear any previous errors
+    setParameterError('');
     setIsSubmittingParameter(true);
     console.log('Parameter form submission started');
     
@@ -440,13 +455,16 @@ export default function AdminPage() {
       if (response.ok) {
         console.log('Parameter saved successfully, closing modal and refreshing data');
         setShowParameterModal(false);
+        setParameterError('');
         fetchData();
       } else {
         const errorData = await response.json();
         console.error('Parameter save failed:', errorData);
+        setParameterError(errorData.error || 'Failed to save parameter');
       }
     } catch (error) {
       console.error('Error saving parameter:', error);
+      setParameterError('Failed to save parameter. Please try again.');
     } finally {
       setIsSubmittingParameter(false);
     }
@@ -716,7 +734,10 @@ export default function AdminPage() {
         {/* Category Modal */}
         <Modal
           isOpen={showCategoryModal}
-          onClose={() => setShowCategoryModal(false)}
+          onClose={() => {
+            setShowCategoryModal(false);
+            setCategoryError(''); // Clear errors when closing
+          }}
           title={editingCategory ? 'Edit Category' : 'Add New Category'}
         >
           <form onSubmit={submitCategoryForm}>
@@ -733,10 +754,26 @@ export default function AdminPage() {
                 autoFocus
               />
             </div>
+            
+            {/* Error Message */}
+            {categoryError && (
+              <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500/50 text-red-700 dark:text-red-400 rounded-lg text-sm">
+                <div className="flex items-start">
+                  <svg className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span>{categoryError}</span>
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => setShowCategoryModal(false)}
+                onClick={() => {
+                  setShowCategoryModal(false);
+                  setCategoryError(''); // Clear errors when canceling
+                }}
                 className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded"
               >
                 Cancel
@@ -755,7 +792,10 @@ export default function AdminPage() {
         {/* Parameter Modal */}
         <Modal
           isOpen={showParameterModal}
-          onClose={() => setShowParameterModal(false)}
+          onClose={() => {
+            setShowParameterModal(false);
+            setParameterError(''); // Clear errors when closing
+          }}
           title={editingParameter ? 'Edit Parameter' : 'Add New Parameter'}
           maxWidth="max-w-lg"
         >
@@ -828,10 +868,26 @@ export default function AdminPage() {
                 />
               </div>
             </div>
+            
+            {/* Error Message */}
+            {parameterError && (
+              <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500/50 text-red-700 dark:text-red-400 rounded-lg text-sm">
+                <div className="flex items-start">
+                  <svg className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span>{parameterError}</span>
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 type="button"
-                onClick={() => setShowParameterModal(false)}
+                onClick={() => {
+                  setShowParameterModal(false);
+                  setParameterError(''); // Clear errors when canceling
+                }}
                 className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded"
               >
                 Cancel

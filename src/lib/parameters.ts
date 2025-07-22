@@ -36,7 +36,7 @@ export function getAllParameters(): ParameterWithCategory[] {
   }
 }
 
-export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>): Parameter | null {
+export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>): { success: boolean; parameter?: Parameter; error?: string } {
   try {
     const database = getDatabase();
     initializeDatabase();
@@ -45,7 +45,7 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
       INSERT INTO parameters (parameter_name, minimum, maximum, unit, description, category_id) 
       VALUES (?, ?, ?, ?, ?, ?) RETURNING *
     `);
-    return stmt.get(
+    const parameter = stmt.get(
       parameterData.parameter_name,
       parameterData.minimum,
       parameterData.maximum,
@@ -53,9 +53,31 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
       parameterData.description,
       parameterData.category_id
     ) as Parameter;
-  } catch (error) {
+    
+    return { success: true, parameter };
+  } catch (error: any) {
     console.error('Error adding parameter:', error);
-    return null;
+    
+    // Check for unique constraint violation on parameter_name
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE' && error.message.includes('parameter_name')) {
+      return { 
+        success: false, 
+        error: `Parameter name "${parameterData.parameter_name}" already exists. Please choose a different name.` 
+      };
+    }
+    
+    // Check for foreign key constraint violation (invalid category_id)
+    if (error.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
+      return { 
+        success: false, 
+        error: 'Invalid category selected. Please refresh the page and try again.' 
+      };
+    }
+    
+    return { 
+      success: false, 
+      error: 'Failed to create parameter. Please try again.' 
+    };
   }
 }
 

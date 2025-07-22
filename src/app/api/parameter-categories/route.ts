@@ -26,18 +26,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const category = addParameterCategory({
+    const result = addParameterCategory({
       category_name: category_name.trim()
     });
     
-    if (!category) {
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Failed to add parameter category. Category name may already exist.' },
+        { success: false, error: result.error },
         { status: 400 }
       );
     }
 
-    return NextResponse.json({ success: true, category }, { status: 201 });
+    return NextResponse.json({ success: true, category: result.category }, { status: 201 });
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json(

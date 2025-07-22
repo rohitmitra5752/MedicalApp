@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AlertModal } from './AlertModal';
 
 interface Patient {
   id: number;
@@ -47,6 +48,10 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
   const [reportDate, setReportDate] = useState(editDate || new Date().toISOString().split('T')[0]);
   const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
   const [existingReportIds, setExistingReportIds] = useState<Record<number, number>>({});
+
+  // Error modal state
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -119,14 +124,16 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
     e.preventDefault();
     
     if (!reportDate) {
-      alert('Please select a report date');
+      setErrorMessage('Please select a report date');
+      setShowErrorModal(true);
       return;
     }
 
     const filledValues = Object.entries(parameterValues).filter(([_, value]) => value.trim() !== '');
     
     if (filledValues.length === 0) {
-      alert('Please enter at least one parameter value');
+      setErrorMessage('Please enter at least one parameter value');
+      setShowErrorModal(true);
       return;
     }
 
@@ -157,16 +164,40 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
       );
 
       const results = await Promise.all(reportPromises);
-      const failed = results.filter(r => !r.ok);
       
-      if (failed.length > 0) {
-        throw new Error(`Failed to save ${failed.length} report(s)`);
+      // Check for any failed requests and extract error messages
+      const failedResponses = [];
+      for (let i = 0; i < results.length; i++) {
+        if (!results[i].ok) {
+          const errorData = await results[i].json();
+          failedResponses.push({
+            parameterId: filledValues[i][0],
+            error: errorData.error || 'Unknown error'
+          });
+        }
+      }
+      
+      if (failedResponses.length > 0) {
+        // Check if any errors are about duplicate reports
+        const duplicateErrors = failedResponses.filter(f => 
+          f.error.includes('A report for this date already exists')
+        );
+        
+        if (duplicateErrors.length > 0) {
+          setErrorMessage(`A report for the date ${reportDate} already exists. Please choose a different date or edit the existing report.`);
+          setShowErrorModal(true);
+        } else {
+          setErrorMessage(`Failed to save ${failedResponses.length} report(s): ${failedResponses.map(f => f.error).join(', ')}`);
+          setShowErrorModal(true);
+        }
+        return;
       }
 
       router.push(`/patients/${patientId}`);
     } catch (error) {
       console.error('Error saving reports:', error);
-      alert('Failed to save reports. Please try again.');
+      setErrorMessage('Failed to save reports. Please try again.');
+      setShowErrorModal(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -356,6 +387,15 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
           </form>
         </div>
       </div>
+
+      {/* Error Modal */}
+      <AlertModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+        type="error"
+      />
     </div>
   );
 }
