@@ -4,6 +4,7 @@ import { getAllParameterCategories } from '@/lib/parameter-categories';
 import { getAllParameters } from '@/lib/parameters';
 
 interface ImportCategory {
+  id?: number;
   category_name: string;
 }
 
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
       `);
 
       const categoryMap = new Map<string, number>(); // Map category_name to id
+      const categoryIdMap = new Map<number, number>(); // Map old category_id to new category_id
 
       for (const category of importData.data.categories || []) {
         try {
@@ -99,6 +101,10 @@ export async function POST(request: NextRequest) {
             if (skipDuplicates) {
               results.categoriesSkipped++;
               categoryMap.set(category.category_name, existing.id);
+              // Map the old category ID to the existing one
+              if ('id' in category) {
+                categoryIdMap.set((category as any).id, existing.id);
+              }
               continue;
             } else {
               throw new Error(`Category '${category.category_name}' already exists`);
@@ -107,6 +113,10 @@ export async function POST(request: NextRequest) {
 
           const newCategory = insertCategory.get(category.category_name) as { id: number };
           categoryMap.set(category.category_name, newCategory.id);
+          // Map the old category ID to the new one
+          if ('id' in category) {
+            categoryIdMap.set((category as any).id, newCategory.id);
+          }
           results.categoriesImported++;
         } catch (error) {
           const errorMsg = `Failed to import category '${category.category_name}': ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -148,13 +158,24 @@ export async function POST(request: NextRequest) {
           // Find the category ID
           let categoryId = parameter.category_id;
           
-          // If we have a category_name in the parameter, look it up
-          if (parameter.category_name) {
+          // First try to map the old category_id to new category_id
+          if (categoryIdMap.has(parameter.category_id)) {
+            categoryId = categoryIdMap.get(parameter.category_id)!;
+          }
+          // If we have a category_name in the parameter, look it up as fallback
+          else if (parameter.category_name) {
             const category = getCategoryByName.get(parameter.category_name) as { id: number } | undefined;
             if (!category) {
               throw new Error(`Category '${parameter.category_name}' not found for parameter '${parameter.parameter_name}'`);
             }
             categoryId = category.id;
+          }
+          // Final fallback: check if the original category_id exists in the database
+          else {
+            const categoryExists = database.prepare('SELECT id FROM parameter_categories WHERE id = ?').get(categoryId);
+            if (!categoryExists) {
+              throw new Error(`Category with ID ${categoryId} not found for parameter '${parameter.parameter_name}'`);
+            }
           }
 
           const newParameter = insertParameter.get(
