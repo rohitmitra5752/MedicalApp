@@ -40,11 +40,8 @@ export default function AddReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const [reportForm, setReportForm] = useState({
-    parameter_id: '',
-    value: '',
-    report_date: new Date().toISOString().split('T')[0] // Today's date
-  });
+  const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
+  const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
 
   const fetchData = useCallback(async () => {
     try {
@@ -90,33 +87,57 @@ export default function AddReportPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      // Filter out empty parameter values
+      const reportsToCreate = Object.entries(parameterValues)
+        .filter(([_, value]) => value.trim() !== '')
+        .map(([parameterId, value]) => ({
           patient_id: parseInt(patientId),
-          parameter_id: parseInt(reportForm.parameter_id),
-          value: parseFloat(reportForm.value),
-          report_date: reportForm.report_date
-        })
-      });
+          parameter_id: parseInt(parameterId),
+          value: parseFloat(value),
+          report_date: reportDate
+        }));
 
-      if (response.ok) {
+      if (reportsToCreate.length === 0) {
+        alert('Please enter at least one parameter value');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create reports in parallel
+      const responses = await Promise.all(
+        reportsToCreate.map(report =>
+          fetch('/api/reports', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(report)
+          })
+        )
+      );
+
+      // Check if all requests were successful
+      const allSuccessful = responses.every(response => response.ok);
+      
+      if (allSuccessful) {
         router.push(`/patients/${patientId}`);
       } else {
-        console.error('Failed to create report');
+        console.error('Failed to create some reports');
+        alert('Failed to create some reports. Please try again.');
       }
     } catch (error) {
-      console.error('Error creating report:', error);
+      console.error('Error creating reports:', error);
+      alert('An error occurred while creating reports. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getParameterById = (id: string) => {
-    return parameters.find(p => p.id === parseInt(id));
+  const handleParameterValueChange = (parameterId: number, value: string) => {
+    setParameterValues(prev => ({
+      ...prev,
+      [parameterId]: value
+    }));
   };
 
   if (isLoading) {
@@ -169,91 +190,108 @@ export default function AddReportPage() {
         </div>
 
         {/* Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 max-w-2xl">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Parameter
-                </label>
-                <select
-                  value={reportForm.parameter_id}
-                  onChange={(e) => setReportForm({ ...reportForm, parameter_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="">Select a parameter</option>
-                  {categories.map((category) => (
-                    <optgroup key={category.id} label={category.category_name}>
-                      {parameters
-                        .filter(param => param.category_id === category.id)
-                        .map((param) => (
-                          <option key={param.id} value={param.id}>
-                            {param.parameter_name} ({param.unit})
-                          </option>
-                        ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              {reportForm.parameter_id && (
-                <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-                  {(() => {
-                    const selectedParam = getParameterById(reportForm.parameter_id);
-                    if (!selectedParam) return null;
-                    
-                    return (
-                      <div>
-                        <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">
-                          {selectedParam.parameter_name}
-                        </h4>
-                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
-                          {selectedParam.description}
-                        </p>
-                        <p className="text-sm text-blue-600 dark:text-blue-400">
-                          Normal range: {selectedParam.minimum} - {selectedParam.maximum} {selectedParam.unit}
-                        </p>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Value
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="any"
-                    value={reportForm.value}
-                    onChange={(e) => setReportForm({ ...reportForm, value: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    required
-                  />
-                  {reportForm.parameter_id && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {getParameterById(reportForm.parameter_id)?.unit}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
+              {/* Report Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Report Date
                 </label>
                 <input
                   type="date"
-                  value={reportForm.report_date}
-                  onChange={(e) => setReportForm({ ...reportForm, report_date: e.target.value })}
+                  value={reportDate}
+                  onChange={(e) => setReportDate(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   required
                 />
+              </div>
+
+              {/* Parameters by Category */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                  Medical Parameters
+                </h3>
+                <div className="space-y-6">
+                  {categories.map((category) => {
+                    const categoryParameters = parameters.filter(param => param.category_id === category.id);
+                    
+                    if (categoryParameters.length === 0) return null;
+                    
+                    return (
+                      <div key={category.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                        <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">
+                          {category.category_name}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {categoryParameters.map((parameter) => (
+                            <div key={parameter.id} className="space-y-2">
+                              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                                {parameter.parameter_name}
+                                <span className="text-xs text-gray-500 dark:text-gray-500 ml-1">
+                                  ({parameter.unit})
+                                </span>
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  step="any"
+                                  value={parameterValues[parameter.id] || ''}
+                                  onChange={(e) => handleParameterValueChange(parameter.id, e.target.value)}
+                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                                  placeholder={`${parameter.minimum}-${parameter.maximum}`}
+                                />
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                                    {parameter.unit}
+                                  </span>
+                                </div>
+                              </div>
+                              {parameter.description && (
+                                <p className="text-xs text-gray-500 dark:text-gray-500">
+                                  {parameter.description}
+                                </p>
+                              )}
+                              <p className="text-xs text-gray-600 dark:text-gray-400">
+                                Normal range: {parameter.minimum} - {parameter.maximum} {parameter.unit}
+                              </p>
+                              
+                              {/* Visual indicator for out-of-range values */}
+                              {parameterValues[parameter.id] && (
+                                (() => {
+                                  const value = parseFloat(parameterValues[parameter.id]);
+                                  if (isNaN(value)) return null;
+                                  
+                                  const isOutOfRange = value < parameter.minimum || value > parameter.maximum;
+                                  
+                                  if (isOutOfRange) {
+                                    return (
+                                      <div className="flex items-center text-xs text-amber-600 dark:text-amber-400">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        Value outside normal range
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  return (
+                                    <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                      </svg>
+                                      Within normal range
+                                    </div>
+                                  );
+                                })()
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -272,10 +310,10 @@ export default function AddReportPage() {
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Creating...
+                    Creating Reports...
                   </>
                 ) : (
-                  'Create Report'
+                  'Create Reports'
                 )}
               </button>
             </div>
