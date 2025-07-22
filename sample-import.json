@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "timestamp": "2025-07-21T16:40:00.000Z",
+  "data": {
+    "categories": [
+      {
+        "category_name": "Thyroid Function"
+      },
+      {
+        "category_name": "Cardiac Markers"
+      }
+    ],
+    "parameters": [
+      {
+        "parameter_name": "TSH",
+        "minimum": 0.4,
+        "maximum": 4.5,
+        "unit": "mIU/L",
+        "description": "Thyroid Stimulating Hormone",
+        "category_id": 1
+      },
+      {
+        "parameter_name": "Free T4",
+        "minimum": 0.8,
+        "maximum": 1.8,
+        "unit": "ng/dL",
+        "description": "Free Thyroxine",
+        "category_id": 1
+      },
+      {
+        "parameter_name": "Troponin I",
+        "minimum": 0,
+        "maximum": 0.04,
+        "unit": "ng/mL",
+        "description": "Cardiac Troponin I",
+        "category_id": 2
+      }
+    ]
+  }
+}
