@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Modal } from '@/components/Modal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { CountrySelector } from '@/components/CountrySelector';
 
 interface Patient {
   id: number;
@@ -12,30 +13,6 @@ interface Patient {
   medical_id_number: string;
   created_at: string;
 }
-
-// Common country codes
-const countryCodes = [
-  { code: '+91', country: 'India', flag: '🇮🇳' },
-  { code: '+1', country: 'US/CA', flag: '🇺🇸' },
-  { code: '+44', country: 'UK', flag: '🇬🇧' },
-  { code: '+86', country: 'China', flag: '🇨🇳' },
-  { code: '+49', country: 'Germany', flag: '🇩🇪' },
-  { code: '+33', country: 'France', flag: '🇫🇷' },
-  { code: '+81', country: 'Japan', flag: '🇯🇵' },
-  { code: '+61', country: 'Australia', flag: '🇦🇺' },
-  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
-  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
-  { code: '+34', country: 'Spain', flag: '🇪🇸' },
-  { code: '+39', country: 'Italy', flag: '🇮🇹' },
-  { code: '+7', country: 'Russia', flag: '🇷🇺' },
-  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
-  { code: '+31', country: 'Netherlands', flag: '🇳🇱' },
-  { code: '+46', country: 'Sweden', flag: '🇸🇪' },
-  { code: '+47', country: 'Norway', flag: '🇳🇴' },
-  { code: '+45', country: 'Denmark', flag: '🇩🇰' },
-  { code: '+41', country: 'Switzerland', flag: '🇨🇭' },
-  { code: '+43', country: 'Austria', flag: '🇦🇹' }
-];
 
 // Utility function to parse phone numbers
 const parsePhoneNumber = (phoneNumber: string): { countryCode: string; number: string } => {
@@ -338,17 +315,11 @@ export default function PatientsPage() {
                 Phone Number
               </label>
               <div className="flex">
-                <select
+                <CountrySelector
                   value={patientForm.country_code}
-                  onChange={(e) => setPatientForm({ ...patientForm, country_code: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white bg-white text-sm min-w-[100px]"
-                >
-                  {countryCodes.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.flag} {country.code}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setPatientForm({ ...patientForm, country_code: value })}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white bg-white w-[100px] flex-shrink-0"
+                />
                 <input
                   type="tel"
                   value={patientForm.phone_number}
