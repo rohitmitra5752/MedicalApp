@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DateReportCard from '@/components/DateReportCard';
 
 interface Patient {
   id: number;
@@ -298,6 +299,7 @@ function PatientImportExport({ patientId, patientName, onDataUpdate }: PatientIm
 
 export default function PatientDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const patientId = params.id as string;
   
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -387,19 +389,29 @@ export default function PatientDetailPage() {
     }
   }, [reports, processReportsIntoCategories]);
 
-  const getReportDates = (categoryName: string) => {
-    const categoryReports = reports.filter(r => r.category_name === categoryName);
-    const dates = [...new Set(categoryReports.map(r => r.report_date))].sort().reverse();
+  const getAllDates = () => {
+    const dates = [...new Set(reports.map(r => r.report_date))].sort().reverse();
     return dates;
   };
 
-  const getValueForParameterAndDate = (parameterName: string, date: string, categoryName: string) => {
-    const report = reports.find(r => 
-      r.parameter_name === parameterName && 
-      r.report_date === date && 
-      r.category_name === categoryName
+  const getCategoriesForDate = (date: string) => {
+    const dateReports = reports.filter(r => r.report_date === date);
+    const categories = [...new Set(dateReports.map(r => r.category_name))].sort();
+    return categories;
+  };
+
+  const getParametersForDateAndCategory = (date: string, categoryName: string) => {
+    const dateReports = reports.filter(r => 
+      r.report_date === date && r.category_name === categoryName
     );
-    return report ? { value: report.value, unit: report.unit } : null;
+    return dateReports.map(report => ({
+      parameter_name: report.parameter_name,
+      value: report.value,
+      unit: report.unit,
+      minimum: report.parameter_minimum,
+      maximum: report.parameter_maximum,
+      isOutOfRange: report.value < report.parameter_minimum || report.value > report.parameter_maximum
+    }));
   };
 
   const formatDate = (dateString: string) => {
@@ -408,6 +420,35 @@ export default function PatientDetailPage() {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleEditReport = (date: string) => {
+    router.push(`/patients/${patientId}/edit-report?date=${date}`);
+  };
+
+  const handleDeleteReport = async (date: string) => {
+    if (!confirm(`Are you sure you want to delete all reports for ${formatDate(date)}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/patients/${patientId}/reports/date/${date}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Refresh the reports data
+        fetchPatientReports();
+        alert(`Successfully deleted ${result.deletedCount} report(s) for ${formatDate(date)}`);
+      } else {
+        alert(`Failed to delete reports: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting reports:', error);
+      alert('Failed to delete reports. Please try again.');
+    }
   };
 
   if (isLoading) {
@@ -494,15 +535,15 @@ export default function PatientDetailPage() {
         </div>
 
         {/* Medical History */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="border-b border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
               Medical History
             </h2>
           </div>
 
-          {categories.length === 0 ? (
-            <div className="p-8 text-center">
+          {getAllDates().length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
               <div className="text-gray-400 dark:text-gray-500 mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -514,65 +555,18 @@ export default function PatientDetailPage() {
               </p>
             </div>
           ) : (
-            <>
-              {/* Tabs */}
-              <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-                {categories.map((category) => (
-                  <button
-                    key={category.categoryName}
-                    onClick={() => setActiveTab(category.categoryName)}
-                    className={`px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                      activeTab === category.categoryName
-                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                    }`}
-                  >
-                    {category.categoryName}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content */}
-              {categories.map((category) => (
-                activeTab === category.categoryName && (
-                  <div key={category.categoryName} className="p-6">
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead className="bg-gray-50 dark:bg-gray-900">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Date
-                            </th>
-                            {category.parameters.map((param) => (
-                              <th key={param} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {param}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                          {getReportDates(category.categoryName).map((date) => (
-                            <tr key={date} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                {formatDate(date)}
-                              </td>
-                              {category.parameters.map((param) => {
-                                const value = getValueForParameterAndDate(param, date, category.categoryName);
-                                return (
-                                  <td key={param} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    {value ? `${value.value} ${value.unit}` : '-'}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )
-              ))}
-            </>
+            getAllDates().map((date) => (
+              <DateReportCard 
+                key={date} 
+                date={date} 
+                categories={getCategoriesForDate(date)}
+                getParametersForDateAndCategory={getParametersForDateAndCategory}
+                formatDate={formatDate}
+                patientId={patientId}
+                onEdit={handleEditReport}
+                onDelete={handleDeleteReport}
+              />
+            ))
           )}
         </div>
       </div>
