@@ -13,6 +13,55 @@ interface Patient {
   created_at: string;
 }
 
+// Common country codes
+const countryCodes = [
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+1', country: 'US/CA', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹' },
+  { code: '+7', country: 'Russia', flag: '🇷🇺' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+  { code: '+31', country: 'Netherlands', flag: '🇳🇱' },
+  { code: '+46', country: 'Sweden', flag: '🇸🇪' },
+  { code: '+47', country: 'Norway', flag: '🇳🇴' },
+  { code: '+45', country: 'Denmark', flag: '🇩🇰' },
+  { code: '+41', country: 'Switzerland', flag: '🇨🇭' },
+  { code: '+43', country: 'Austria', flag: '🇦🇹' }
+];
+
+// Utility function to parse phone numbers
+const parsePhoneNumber = (phoneNumber: string): { countryCode: string; number: string } => {
+  // Try to match various phone number formats
+  const patterns = [
+    /^(\+\d{1,4})\s?(.+)$/, // +1 234567890 or +44 1234567890
+    /^(\+\d{1,4})(.+)$/,    // +1234567890
+  ];
+  
+  for (const pattern of patterns) {
+    const match = phoneNumber.match(pattern);
+    if (match) {
+      return {
+        countryCode: match[1],
+        number: match[2].replace(/\s+/g, ' ').trim() // Normalize spacing
+      };
+    }
+  }
+  
+  // If no pattern matches, assume it's just a number without country code
+  return {
+    countryCode: '+91', // Default to India
+    number: phoneNumber.trim()
+  };
+};
+
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +79,8 @@ export default function PatientsPage() {
   const [patientForm, setPatientForm] = useState({
     name: '',
     phone_number: '',
-    medical_id_number: ''
+    medical_id_number: '',
+    country_code: '+91' // Default to India
   });
 
   useEffect(() => {
@@ -55,16 +105,20 @@ export default function PatientsPage() {
   };
 
   const handleAddPatient = () => {
-    setPatientForm({ name: '', phone_number: '', medical_id_number: '' });
+    setPatientForm({ name: '', phone_number: '', medical_id_number: '', country_code: '+91' });
     setEditingPatient(null);
     setShowPatientModal(true);
   };
 
   const handleEditPatient = (patient: Patient) => {
+    // Parse existing phone number to separate country code and number
+    const parsed = parsePhoneNumber(patient.phone_number);
+    
     setPatientForm({
       name: patient.name,
-      phone_number: patient.phone_number,
-      medical_id_number: patient.medical_id_number
+      phone_number: parsed.number,
+      medical_id_number: patient.medical_id_number,
+      country_code: parsed.countryCode
     });
     setEditingPatient(patient);
     setShowPatientModal(true);
@@ -109,10 +163,17 @@ export default function PatientsPage() {
         : '/api/patients';
       const method = editingPatient ? 'PATCH' : 'POST';
 
+      // Combine country code with phone number
+      const formData = {
+        name: patientForm.name,
+        phone_number: `${patientForm.country_code} ${patientForm.phone_number}`,
+        medical_id_number: patientForm.medical_id_number
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(patientForm)
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
@@ -276,13 +337,30 @@ export default function PatientsPage() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Phone Number
               </label>
-              <input
-                type="tel"
-                value={patientForm.phone_number}
-                onChange={(e) => setPatientForm({ ...patientForm, phone_number: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                required
-              />
+              <div className="flex">
+                <select
+                  value={patientForm.country_code}
+                  onChange={(e) => setPatientForm({ ...patientForm, country_code: e.target.value })}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white bg-white text-sm min-w-[100px]"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.code}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  value={patientForm.phone_number}
+                  onChange={(e) => setPatientForm({ ...patientForm, phone_number: e.target.value })}
+                  placeholder="123-456-7890"
+                  className="flex-1 px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Enter the phone number without the country code
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
