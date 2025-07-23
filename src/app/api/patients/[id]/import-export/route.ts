@@ -14,6 +14,7 @@ interface ExportData {
     name: string;
     phone: string;
     medical_id: string;
+    gender: string;
   };
   reports: ExportReport[];
 }
@@ -31,6 +32,7 @@ interface ImportData {
     name: string;
     phone: string;
     medical_id: string;
+    gender: string;
   };
   reports: ImportReport[];
 }
@@ -55,10 +57,10 @@ export async function GET(
     
     // Get patient info
     const getPatient = database.prepare(`
-      SELECT name, phone_number as phone, medical_id_number as medical_id FROM patients WHERE id = ?
+      SELECT name, phone_number as phone, medical_id_number as medical_id, gender FROM patients WHERE id = ?
     `);
     
-    const patient = getPatient.get(patientId) as { name: string; phone: string; medical_id: string } | undefined;
+    const patient = getPatient.get(patientId) as { name: string; phone: string; medical_id: string; gender: string } | undefined;
     
     if (!patient) {
       return NextResponse.json(

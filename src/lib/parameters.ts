@@ -44,52 +44,22 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
     const database = getDatabase();
     initializeDatabase();
     
-    // Check if old columns exist (for backward compatibility during migration)
-    const oldColumnsExist = database.prepare(`
-      SELECT name FROM pragma_table_info('parameters') 
-      WHERE name IN ('minimum', 'maximum')
-    `).all();
+    const stmt = database.prepare(`
+      INSERT INTO parameters (parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *
+    `);
     
-    let stmt;
-    let parameter;
-    
-    if (oldColumnsExist.length === 2) {
-      // Old columns exist, insert into both old and new columns
-      stmt = database.prepare(`
-        INSERT INTO parameters (parameter_name, minimum, maximum, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *
-      `);
-      parameter = stmt.get(
-        parameterData.parameter_name,
-        parameterData.minimum_male, // Use male values for old minimum/maximum for backward compatibility
-        parameterData.maximum_male,
-        parameterData.minimum_male,
-        parameterData.maximum_male,
-        parameterData.minimum_female,
-        parameterData.maximum_female,
-        parameterData.unit,
-        parameterData.description,
-        parameterData.category_id,
-        parameterData.sort_order
-      ) as Parameter;
-    } else {
-      // Only new columns exist
-      stmt = database.prepare(`
-        INSERT INTO parameters (parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *
-      `);
-      parameter = stmt.get(
-        parameterData.parameter_name,
-        parameterData.minimum_male,
-        parameterData.maximum_male,
-        parameterData.minimum_female,
-        parameterData.maximum_female,
-        parameterData.unit,
-        parameterData.description,
-        parameterData.category_id,
-        parameterData.sort_order
-      ) as Parameter;
-    }
+    const parameter = stmt.get(
+      parameterData.parameter_name,
+      parameterData.minimum_male,
+      parameterData.maximum_male,
+      parameterData.minimum_female,
+      parameterData.maximum_female,
+      parameterData.unit,
+      parameterData.description,
+      parameterData.category_id,
+      parameterData.sort_order
+    ) as Parameter;
     
     return { success: true, parameter };
   } catch (error: unknown) {
