@@ -52,7 +52,7 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
   const [reportDate, setReportDate] = useState(editDate || new Date().toISOString().split('T')[0]);
   const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
 
-  // Helper functions to get gender-specific ranges
+  // Helper functions to get sex-specific ranges
   const getParameterMinimum = (parameter: Parameter) => {
     if (!patient) return 0;
     return patient.gender === 'male' ? parameter.minimum_male : parameter.minimum_female;

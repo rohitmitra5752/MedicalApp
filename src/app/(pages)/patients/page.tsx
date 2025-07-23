@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Modal } from '@/components/Modal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { CountrySelector } from '@/components/CountrySelector';
-import { GenderSelector } from '@/components/GenderSelector';
+import { SexSelector } from '@/components/SexSelector';
 
 interface Patient {
   id: number;
@@ -136,9 +136,9 @@ export default function PatientsPage() {
       return;
     }
 
-    // Validate gender selection
+    // Validate sex selection
     if (!patientForm.gender) {
-      alert('Please select a gender');
+      alert('Please select a sex');
       return;
     }
     
@@ -358,11 +358,11 @@ export default function PatientsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Gender
+                Sex
               </label>
-              <GenderSelector
+              <SexSelector
                 value={patientForm.gender}
-                onChange={(gender) => setPatientForm({ ...patientForm, gender })}
+                onChange={(sex) => setPatientForm({ ...patientForm, gender: sex })}
               />
             </div>
           </div>

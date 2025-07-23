@@ -95,18 +95,18 @@ export function initializeDatabase() {
       // Column already exists, ignore error
     }
 
-    // Add gender column to existing patients table if it doesn't exist
+    // Add sex column to existing patients table if it doesn't exist
     try {
       database.prepare(`ALTER TABLE patients ADD COLUMN gender TEXT CHECK (gender IN ('male', 'female'))`).run();
       
-      // Set a default gender for existing patients that don't have one
+      // Set a default sex for existing patients that don't have one
       database.prepare(`
         UPDATE patients 
         SET gender = 'male' 
         WHERE gender IS NULL
       `).run();
       
-      console.log('Added gender column and set default values for existing patients');
+      console.log('Added sex column and set default values for existing patients');
     } catch {
       // Column already exists, ignore error
     }
@@ -145,7 +145,7 @@ export function initializeDatabase() {
             WHERE minimum_male IS NULL AND minimum IS NOT NULL
           `).run();
           
-          console.log('Copied data to new gender-specific columns');
+          console.log('Copied data to new sex-specific columns');
         } catch (migrationError) {
           console.log('Migration update failed:', migrationError);
         }
