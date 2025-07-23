@@ -76,6 +76,55 @@ export function useFocusTrap(isActive: boolean) {
       }
     };
 
+    const handleCtrlEnter = (event: KeyboardEvent) => {
+      // Handle Ctrl+Enter (or Cmd+Enter on Mac) to submit modal forms
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        
+        // Priority 1: Look for explicit submit buttons
+        const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (submitButton && !submitButton.disabled) {
+          submitButton.click();
+          return;
+        }
+
+        // Priority 2: Look for common action buttons by text content
+        const buttons = container.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
+        for (const button of buttons) {
+          const buttonText = button.textContent?.toLowerCase() || '';
+          const isActionButton = buttonText.includes('submit') || 
+                               buttonText.includes('save') || 
+                               buttonText.includes('create') || 
+                               buttonText.includes('update') || 
+                               buttonText.includes('confirm') ||
+                               buttonText.includes('add') ||
+                               buttonText.includes('ok') ||
+                               button.type === 'submit';
+          
+          // Skip negative actions and disabled buttons
+          const isNegativeAction = buttonText.includes('cancel') || 
+                                  buttonText.includes('close') ||
+                                  buttonText.includes('delete') ||
+                                  buttonText.includes('remove');
+          
+          if (isActionButton && !isNegativeAction && !button.disabled) {
+            button.click();
+            return;
+          }
+        }
+
+        // Priority 3: Fallback to form submission if no suitable button found
+        const form = container.querySelector('form') as HTMLFormElement;
+        if (form) {
+          const submitEvent = new Event('submit', { 
+            bubbles: true, 
+            cancelable: true 
+          });
+          form.dispatchEvent(submitEvent);
+        }
+      }
+    };
+
     // Handle focus events that might escape the modal
     const handleDocumentFocusIn = (event: FocusEvent) => {
       const target = event.target as HTMLElement;
@@ -89,6 +138,7 @@ export function useFocusTrap(isActive: boolean) {
     // Add event listeners
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleCtrlEnter);
     document.addEventListener('focusin', handleDocumentFocusIn);
 
     // Cleanup function
@@ -98,6 +148,7 @@ export function useFocusTrap(isActive: boolean) {
 
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleCtrlEnter);
       document.removeEventListener('focusin', handleDocumentFocusIn);
 
       // Restore focus to the previously focused element

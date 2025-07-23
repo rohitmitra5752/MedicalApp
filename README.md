@@ -13,6 +13,7 @@ A medical tracking application built with Next.js 15 and SQLite3 database integr
 - 🔧 **Admin Panel** with comprehensive parameter and category management
 - 👥 **Patient Management** with individual patient profiles and medical reports
 - ♿ **Accessibility Features** with focus management and keyboard navigation
+- ⌨️ **Keyboard Shortcuts** - Ctrl+Enter to submit modal forms
 - 🌙 **Dark mode support**
 - 📱 **Responsive design**
 
@@ -227,6 +228,16 @@ The application initializes with empty tables. You can add your own parameters, 
 - `GET /api/reports/[id]` - Get a specific report
 - `PATCH /api/reports/[id]` - Update an existing report (partial updates supported)
 - `DELETE /api/reports/[id]` - Delete a report by ID
+
+## Keyboard Shortcuts
+
+The application includes keyboard shortcuts to improve productivity:
+
+### Modal Dialogs
+- **Ctrl+Enter** (or **Cmd+Enter** on Mac) - Submit forms or trigger primary actions in modal dialogs
+  - Works with report forms, parameter forms, category forms, confirmation dialogs, and more
+  - Automatically detects submit buttons, action buttons (Save, Create, Update, Confirm, OK), or triggers form submission
+  - See [MODAL_SHORTCUTS.md](MODAL_SHORTCUTS.md) for detailed documentation
 
 ## Technologies Used
 
