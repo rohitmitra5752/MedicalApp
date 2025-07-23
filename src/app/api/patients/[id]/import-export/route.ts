@@ -38,10 +38,11 @@ interface ImportData {
 // Export patient data as JSON
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     
     if (isNaN(patientId)) {
       return NextResponse.json(
@@ -104,10 +105,11 @@ export async function GET(
 // Import patient data from JSON
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     
     if (isNaN(patientId)) {
       return NextResponse.json(

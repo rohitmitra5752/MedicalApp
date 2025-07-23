@@ -19,6 +19,7 @@ interface Parameter {
   unit: string;
   description: string;
   category_id: number;
+  sort_order: number;
   created_at: string;
 }
 
@@ -282,7 +283,8 @@ export default function AdminPage() {
     maximum: '',
     unit: '',
     description: '',
-    category_id: 0
+    category_id: 0,
+    sort_order: ''
   });
 
   useEffect(() => {
@@ -347,7 +349,8 @@ export default function AdminPage() {
       maximum: '',
       unit: '',
       description: '',
-      category_id: categoryId
+      category_id: categoryId,
+      sort_order: ''
     });
     setEditingParameter(null);
     setParameterError(''); // Clear any previous errors
@@ -361,7 +364,8 @@ export default function AdminPage() {
       maximum: parameter.maximum.toString(),
       unit: parameter.unit,
       description: parameter.description,
-      category_id: parameter.category_id
+      category_id: parameter.category_id,
+      sort_order: parameter.sort_order.toString()
     });
     setEditingParameter(parameter);
     setParameterError(''); // Clear any previous errors
@@ -432,7 +436,8 @@ export default function AdminPage() {
       const formData = {
         ...parameterForm,
         minimum: parseFloat(parameterForm.minimum),
-        maximum: parseFloat(parameterForm.maximum)
+        maximum: parseFloat(parameterForm.maximum),
+        sort_order: parameterForm.sort_order ? parseInt(parameterForm.sort_order) : 0
       };
 
       console.log('Submitting parameter data:', formData);
@@ -854,6 +859,22 @@ export default function AdminPage() {
                   placeholder="e.g., mmHg, bpm, mg/dL"
                   required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sort Order
+                </label>
+                <input
+                  type="number"
+                  value={parameterForm.sort_order}
+                  onChange={(e) => setParameterForm({ ...parameterForm, sort_order: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Lower numbers appear first. Leave blank for default (0).
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

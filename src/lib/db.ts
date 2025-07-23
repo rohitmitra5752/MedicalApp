@@ -48,6 +48,7 @@ export function initializeDatabase() {
         unit TEXT NOT NULL,
         description TEXT NOT NULL,
         category_id INTEGER NOT NULL,
+        sort_order INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (category_id) REFERENCES parameter_categories (id) ON DELETE CASCADE
       )
@@ -84,6 +85,13 @@ export function initializeDatabase() {
     createPatientsTable.run();
     createReportsTable.run();
 
+    // Add sort_order column to existing parameters table if it doesn't exist
+    try {
+      database.prepare(`ALTER TABLE parameters ADD COLUMN sort_order INTEGER DEFAULT 0`).run();
+    } catch {
+      // Column already exists, ignore error
+    }
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -105,6 +113,7 @@ export interface Parameter {
   unit: string;
   description: string;
   category_id: number;
+  sort_order: number;
   created_at: string;
 }
 

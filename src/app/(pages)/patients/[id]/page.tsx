@@ -30,6 +30,7 @@ interface ReportWithCategory {
   parameter_description: string;
   category_id: number;
   category_name: string;
+  parameter_sort_order: number;
 }
 
 interface CategoryData {
@@ -306,7 +307,6 @@ export default function PatientDetailPage() {
   
   const [patient, setPatient] = useState<Patient | null>(null);
   const [reports, setReports] = useState<ReportWithCategory[]>([]);
-  const [categories, setCategories] = useState<CategoryData[]>([]);
   const [activeTab, setActiveTab] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -370,16 +370,27 @@ export default function PatientDetailPage() {
       }
     });
 
-    // Sort parameters within each category
+    // Sort parameters within each category by sort_order, then alphabetically
     categoryMap.forEach(categoryData => {
-      categoryData.parameters.sort();
+      categoryData.parameters.sort((a, b) => {
+        // Find the sort_order for each parameter
+        const paramA = reports.find(r => r.parameter_name === a);
+        const paramB = reports.find(r => r.parameter_name === b);
+        
+        const sortOrderA = paramA?.parameter_sort_order ?? 0;
+        const sortOrderB = paramB?.parameter_sort_order ?? 0;
+        
+        // Sort by sort_order first, then alphabetically if sort_order is the same
+        if (sortOrderA !== sortOrderB) {
+          return sortOrderA - sortOrderB;
+        }
+        return a.localeCompare(b);
+      });
     });
 
     const categoriesArray = Array.from(categoryMap.values()).sort((a, b) => 
       a.categoryName.localeCompare(b.categoryName)
     );
-    
-    setCategories(categoriesArray);
     
     if (categoriesArray.length > 0 && !activeTab) {
       setActiveTab(categoriesArray[0].categoryName);

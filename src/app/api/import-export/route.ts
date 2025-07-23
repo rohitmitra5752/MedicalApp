@@ -38,7 +38,8 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       data: {
         categories,
-        parameters: parameters.map(({ category_name, ...param }) => param) // Remove category_name from export
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        parameters: parameters.map(({ category_name: _category_name, ...param }) => param) // Remove category_name from export
       }
     };
 
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
               categoryMap.set(category.category_name, existing.id);
               // Map the old category ID to the existing one
               if ('id' in category) {
-                categoryIdMap.set((category as any).id, existing.id);
+                categoryIdMap.set((category as { id: number }).id, existing.id);
               }
               continue;
             } else {
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
           categoryMap.set(category.category_name, newCategory.id);
           // Map the old category ID to the new one
           if ('id' in category) {
-            categoryIdMap.set((category as any).id, newCategory.id);
+            categoryIdMap.set((category as { id: number }).id, newCategory.id);
           }
           results.categoriesImported++;
         } catch (error) {
@@ -178,7 +179,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          const newParameter = insertParameter.get(
+          insertParameter.run(
             parameter.parameter_name,
             parameter.minimum,
             parameter.maximum,

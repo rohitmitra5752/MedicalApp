@@ -8,6 +8,7 @@ export interface Parameter {
   unit: string;
   description: string;
   category_id: number;
+  sort_order: number;
   created_at: string;
 }
 
@@ -27,7 +28,7 @@ export function getAllParameters(): ParameterWithCategory[] {
         pc.category_name
       FROM parameters p
       JOIN parameter_categories pc ON p.category_id = pc.id
-      ORDER BY pc.category_name, p.parameter_name
+      ORDER BY pc.category_name, p.sort_order, p.parameter_name
     `);
     return stmt.all() as ParameterWithCategory[];
   } catch (error) {
@@ -42,8 +43,8 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
     initializeDatabase();
     
     const stmt = database.prepare(`
-      INSERT INTO parameters (parameter_name, minimum, maximum, unit, description, category_id) 
-      VALUES (?, ?, ?, ?, ?, ?) RETURNING *
+      INSERT INTO parameters (parameter_name, minimum, maximum, unit, description, category_id, sort_order) 
+      VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *
     `);
     const parameter = stmt.get(
       parameterData.parameter_name,
@@ -51,15 +52,19 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
       parameterData.maximum,
       parameterData.unit,
       parameterData.description,
-      parameterData.category_id
+      parameterData.category_id,
+      parameterData.sort_order
     ) as Parameter;
     
     return { success: true, parameter };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding parameter:', error);
     
     // Check for unique constraint violation on parameter_name
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE' && error.message.includes('parameter_name')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode = (error as { code?: string })?.code;
+    
+    if (errorCode === 'SQLITE_CONSTRAINT_UNIQUE' && errorMessage.includes('parameter_name')) {
       return { 
         success: false, 
         error: `Parameter name "${parameterData.parameter_name}" already exists. Please choose a different name.` 
@@ -67,7 +72,7 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
     }
     
     // Check for foreign key constraint violation (invalid category_id)
-    if (error.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
+    if (errorCode === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
       return { 
         success: false, 
         error: 'Invalid category selected. Please refresh the page and try again.' 
@@ -147,6 +152,11 @@ export function updateParameter(id: number, parameterData: Partial<Omit<Paramete
     if (parameterData.category_id !== undefined) {
       updateFields.push('category_id = ?');
       updateValues.push(parameterData.category_id);
+    }
+    
+    if (parameterData.sort_order !== undefined) {
+      updateFields.push('sort_order = ?');
+      updateValues.push(parameterData.sort_order);
     }
     
     if (updateFields.length === 0) {

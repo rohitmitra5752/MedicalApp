@@ -51,11 +51,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { parameter_name, minimum, maximum, unit, description, category_id } = body;
+    const { parameter_name, minimum, maximum, unit, description, category_id, sort_order } = body;
 
     // Validate that at least one field is provided
     if (parameter_name === undefined && minimum === undefined && 
-        maximum === undefined && unit === undefined && description === undefined && category_id === undefined) {
+        maximum === undefined && unit === undefined && description === undefined && 
+        category_id === undefined && sort_order === undefined) {
       return NextResponse.json(
         { success: false, error: 'At least one field must be provided for update' },
         { status: 400 }
@@ -84,6 +85,13 @@ export async function PATCH(
       );
     }
 
+    if (sort_order !== undefined && typeof sort_order !== 'number') {
+      return NextResponse.json(
+        { success: false, error: 'Sort order must be a number' },
+        { status: 400 }
+      );
+    }
+
     // Validate minimum < maximum if both are provided
     if (minimum !== undefined && maximum !== undefined && minimum >= maximum) {
       return NextResponse.json(
@@ -98,7 +106,8 @@ export async function PATCH(
       maximum,
       unit: unit?.trim(),
       description: description?.trim(),
-      category_id
+      category_id,
+      sort_order
     });
     
     if (!updatedParameter) {

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('API: Request body:', body);
     
-    const { parameter_name, minimum, maximum, unit, description, category_id } = body;
+    const { parameter_name, minimum, maximum, unit, description, category_id, sort_order } = body;
 
     if (!parameter_name || minimum == null || maximum == null || !unit || !description || !category_id) {
       console.log('API: Missing required fields');
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('API: Adding parameter with data:', { parameter_name, minimum, maximum, unit, description, category_id });
+    console.log('API: Adding parameter with data:', { parameter_name, minimum, maximum, unit, description, category_id, sort_order });
 
     const result = addParameter({
       parameter_name: parameter_name.trim(),
@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
       maximum,
       unit: unit.trim(),
       description: description.trim(),
-      category_id
+      category_id,
+      sort_order: sort_order || 0
     });
     
     console.log('API: Parameter creation result:', result);

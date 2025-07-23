@@ -4,11 +4,12 @@ import { getDatabase } from '@/lib/db';
 // Delete all reports for a specific patient and date
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; date: string } }
+  { params }: { params: Promise<{ id: string; date: string }> }
 ) {
   try {
-    const patientId = parseInt(params.id);
-    const reportDate = params.date;
+    const { id, date } = await params;
+    const patientId = parseInt(id);
+    const reportDate = date;
     
     if (isNaN(patientId)) {
       return NextResponse.json(

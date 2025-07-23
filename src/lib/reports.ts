@@ -24,6 +24,7 @@ export interface ReportWithCategory extends Report {
   parameter_description: string;
   category_id: number;
   category_name: string;
+  parameter_sort_order: number;
 }
 
 // Check if a report already exists for the same patient, parameter, and date
@@ -242,13 +243,14 @@ export function getReportsByPatientWithCategories(patientId: number): ReportWith
         param.maximum as parameter_maximum,
         param.description as parameter_description,
         param.category_id,
+        param.sort_order as parameter_sort_order,
         pc.category_name
       FROM reports r
       JOIN patients p ON r.patient_id = p.id
       JOIN parameters param ON r.parameter_id = param.id
       JOIN parameter_categories pc ON param.category_id = pc.id
       WHERE r.patient_id = ?
-      ORDER BY pc.category_name, param.parameter_name, r.report_date DESC
+      ORDER BY pc.category_name, param.sort_order, param.parameter_name, r.report_date DESC
     `);
     return stmt.all(patientId) as ReportWithCategory[];
   } catch (error) {

@@ -19,7 +19,8 @@ interface DateReportCardProps {
   onDelete: (date: string) => void;
 }
 
-export default function DateReportCard({ date, categories, getParametersForDateAndCategory, formatDate, patientId, onEdit, onDelete }: DateReportCardProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function DateReportCard({ date, categories, getParametersForDateAndCategory, formatDate, patientId: _patientId, onEdit, onDelete }: DateReportCardProps) {
   const [activeCategory, setActiveCategory] = useState('abnormal');
 
   useEffect(() => {

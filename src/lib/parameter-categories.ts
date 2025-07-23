@@ -32,11 +32,14 @@ export function addParameterCategory(categoryData: Omit<ParameterCategory, 'id' 
     const category = stmt.get(categoryData.category_name.trim()) as ParameterCategory;
     
     return { success: true, category };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding parameter category:', error);
     
     // Check for unique constraint violation on category_name
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE' && error.message.includes('category_name')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode = (error as { code?: string })?.code;
+    
+    if (errorCode === 'SQLITE_CONSTRAINT_UNIQUE' && errorMessage.includes('category_name')) {
       return { 
         success: false, 
         error: `Category name "${categoryData.category_name}" already exists. Please choose a different name.` 

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface FlagIconProps {
   countryCode: string;
   className?: string;
@@ -5,11 +7,11 @@ interface FlagIconProps {
 
 export const FlagIcon = ({ countryCode, className = "inline-block mr-2" }: FlagIconProps) => {
   return (
-    <img 
+    <Image 
       src={`https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`}
       alt={`${countryCode} flag`}
-      width="16"
-      height="12"
+      width={16}
+      height={12}
       className={className}
       style={{ minWidth: '16px' }}
       onError={(e) => {

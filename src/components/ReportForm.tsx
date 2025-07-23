@@ -21,6 +21,7 @@ interface Parameter {
   unit: string;
   description: string;
   category_id: number;
+  sort_order: number;
   created_at: string;
 }
 
@@ -84,14 +85,14 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
         const reportsData = await reportsRes.json();
         
         if (reportsData.success) {
-          const dateReports = reportsData.reports.filter((report: any) => 
+          const dateReports = reportsData.reports.filter((report: { report_date: string }) => 
             report.report_date === editDate
           );
           
           const existingValues: Record<number, string> = {};
           const existingIds: Record<number, number> = {};
           
-          dateReports.forEach((report: any) => {
+          dateReports.forEach((report: { parameter_id: number; value: number; id: number }) => {
             existingValues[report.parameter_id] = report.value.toString();
             existingIds[report.parameter_id] = report.id;
           });
@@ -129,7 +130,8 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
       return;
     }
 
-    const filledValues = Object.entries(parameterValues).filter(([_, value]) => value.trim() !== '');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const filledValues = Object.entries(parameterValues).filter(([_key, value]) => value.trim() !== '');
     
     if (filledValues.length === 0) {
       setErrorMessage('Please enter at least one parameter value');
