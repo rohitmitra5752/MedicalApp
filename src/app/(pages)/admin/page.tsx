@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Modal } from '@/components/Modal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { SortableParameterList } from '@/components/SortableParameterList';
 
 interface ParameterCategory {
   id: number;
@@ -528,6 +529,62 @@ export default function AdminPage() {
     }
   };
 
+  const handleParameterReorder = async (newOrder: Parameter[]) => {
+    try {
+      const parametersToUpdate = newOrder.map((param, index) => ({
+        id: param.id,
+        sort_order: index + 1
+      }));
+
+      const response = await fetch('/api/parameters/reorder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parameters: parametersToUpdate })
+      });
+
+      if (response.ok) {
+        // Update local state to reflect the new order
+        setCategories(prevCategories => 
+          prevCategories.map(category => {
+            if (category.id === newOrder[0].category_id) {
+              return {
+                ...category,
+                parameters: newOrder
+              };
+            }
+            return category;
+          })
+        );
+      } else {
+        console.error('Failed to update parameter order');
+        // Optionally, you could show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error updating parameter order:', error);
+    }
+  };
+
+  const handleSortOrderChange = async (parameterId: number, newSortOrder: number) => {
+    try {
+      const response = await fetch('/api/parameters/reorder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          parameters: [{ id: parameterId, sort_order: newSortOrder }] 
+        })
+      });
+
+      if (response.ok) {
+        // Refresh data to get updated sort order
+        fetchData();
+      } else {
+        console.error('Failed to update parameter sort order');
+      }
+    } catch (error) {
+      console.error('Error updating parameter sort order:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -662,39 +719,13 @@ export default function AdminPage() {
                           No parameters in this category yet.
                         </p>
                       ) : (
-                        <div className="grid gap-3">
-                          {category.parameters.map((parameter) => (
-                            <div key={parameter.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-800 dark:text-white">{parameter.parameter_name}</h5>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{parameter.description}</p>
-                                <div className="flex space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                  <span>Range: {parameter.minimum} - {parameter.maximum} {parameter.unit}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() => handleEditParameter(parameter)}
-                                  className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
-                                  title="Edit parameter"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteParameter(parameter)}
-                                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                  title="Delete parameter"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        <SortableParameterList
+                          parameters={category.parameters}
+                          onEdit={handleEditParameter}
+                          onDelete={handleDeleteParameter}
+                          onReorder={handleParameterReorder}
+                          onSortOrderChange={handleSortOrderChange}
+                        />
                       )}
                     </div>
                   )}

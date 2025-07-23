@@ -180,3 +180,28 @@ export function updateParameter(id: number, parameterData: Partial<Omit<Paramete
     return null;
   }
 }
+
+export function updateParametersSortOrder(parameters: { id: number; sort_order: number }[]): { success: boolean; error?: string } {
+  try {
+    const database = getDatabase();
+    initializeDatabase();
+    
+    // Use a transaction to update all parameters atomically
+    const transaction = database.transaction(() => {
+      const stmt = database.prepare('UPDATE parameters SET sort_order = ? WHERE id = ?');
+      
+      for (const param of parameters) {
+        stmt.run(param.sort_order, param.id);
+      }
+    });
+    
+    transaction();
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating parameters sort order:', error);
+    return { 
+      success: false, 
+      error: 'Failed to update parameter order. Please try again.' 
+    };
+  }
+}
