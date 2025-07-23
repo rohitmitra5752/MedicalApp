@@ -24,8 +24,10 @@ import { CSS } from '@dnd-kit/utilities';
 interface Parameter {
   id: number;
   parameter_name: string;
-  minimum: number;
-  maximum: number;
+  minimum_male: number;
+  maximum_male: number;
+  minimum_female: number;
+  maximum_female: number;
   unit: string;
   description: string;
   category_id: number;
@@ -135,7 +137,12 @@ function SortableParameterItem({
         <h5 className="font-medium text-gray-800 dark:text-white">{parameter.parameter_name}</h5>
         <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{parameter.description}</p>
         <div className="flex space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-          <span>Range: {parameter.minimum} - {parameter.maximum} {parameter.unit}</span>
+          <span>
+            <span className="text-blue-600 dark:text-blue-400">♂</span> {parameter.minimum_male} - {parameter.maximum_male} {parameter.unit}
+          </span>
+          <span>
+            <span className="text-pink-600 dark:text-pink-400">♀</span> {parameter.minimum_female} - {parameter.maximum_female} {parameter.unit}
+          </span>
         </div>
       </div>
 

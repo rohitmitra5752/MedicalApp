@@ -15,8 +15,10 @@ interface ParameterCategory {
 interface Parameter {
   id: number;
   parameter_name: string;
-  minimum: number;
-  maximum: number;
+  minimum_male: number;
+  maximum_male: number;
+  minimum_female: number;
+  maximum_female: number;
   unit: string;
   description: string;
   category_id: number;
@@ -280,8 +282,10 @@ export default function AdminPage() {
   const [categoryForm, setCategoryForm] = useState({ category_name: '' });
   const [parameterForm, setParameterForm] = useState({
     parameter_name: '',
-    minimum: '',
-    maximum: '',
+    minimum_male: '',
+    maximum_male: '',
+    minimum_female: '',
+    maximum_female: '',
     unit: '',
     description: '',
     category_id: 0,
@@ -346,8 +350,10 @@ export default function AdminPage() {
   const handleAddParameter = (categoryId: number) => {
     setParameterForm({
       parameter_name: '',
-      minimum: '',
-      maximum: '',
+      minimum_male: '',
+      maximum_male: '',
+      minimum_female: '',
+      maximum_female: '',
       unit: '',
       description: '',
       category_id: categoryId,
@@ -361,8 +367,10 @@ export default function AdminPage() {
   const handleEditParameter = (parameter: Parameter) => {
     setParameterForm({
       parameter_name: parameter.parameter_name,
-      minimum: parameter.minimum.toString(),
-      maximum: parameter.maximum.toString(),
+      minimum_male: parameter.minimum_male.toString(),
+      maximum_male: parameter.maximum_male.toString(),
+      minimum_female: parameter.minimum_female.toString(),
+      maximum_female: parameter.maximum_female.toString(),
       unit: parameter.unit,
       description: parameter.description,
       category_id: parameter.category_id,
@@ -436,8 +444,10 @@ export default function AdminPage() {
     try {
       const formData = {
         ...parameterForm,
-        minimum: parseFloat(parameterForm.minimum),
-        maximum: parseFloat(parameterForm.maximum),
+        minimum_male: parseFloat(parameterForm.minimum_male),
+        maximum_male: parseFloat(parameterForm.maximum_male),
+        minimum_female: parseFloat(parameterForm.minimum_female),
+        maximum_female: parseFloat(parameterForm.maximum_female),
         sort_order: parameterForm.sort_order ? parseInt(parameterForm.sort_order) : 0
       };
 
@@ -850,34 +860,79 @@ export default function AdminPage() {
                   autoFocus
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Minimum Value
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={parameterForm.minimum}
-                    onChange={(e) => setParameterForm({ ...parameterForm, minimum: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    required
-                  />
+              
+              {/* Male Range Section */}
+              <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-blue-600 dark:text-blue-400 text-lg">♂</span>
+                  <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300">Male Reference Range</h4>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Maximum Value
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={parameterForm.maximum}
-                    onChange={(e) => setParameterForm({ ...parameterForm, maximum: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Minimum Value
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={parameterForm.minimum_male}
+                      onChange={(e) => setParameterForm({ ...parameterForm, minimum_male: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Maximum Value
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={parameterForm.maximum_male}
+                      onChange={(e) => setParameterForm({ ...parameterForm, maximum_male: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* Female Range Section */}
+              <div className="space-y-4 p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-800">
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-pink-600 dark:text-pink-400 text-lg">♀</span>
+                  <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-300">Female Reference Range</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Minimum Value
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={parameterForm.minimum_female}
+                      onChange={(e) => setParameterForm({ ...parameterForm, minimum_female: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Maximum Value
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={parameterForm.maximum_female}
+                      onChange={(e) => setParameterForm({ ...parameterForm, maximum_female: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Unit
@@ -1029,7 +1084,9 @@ export default function AdminPage() {
                 <span className="font-medium">Description:</span> {parameterToDelete.description}
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                <span className="font-medium">Range:</span> {parameterToDelete.minimum} - {parameterToDelete.maximum} {parameterToDelete.unit}
+                <span className="font-medium">Male Range:</span> {parameterToDelete.minimum_male} - {parameterToDelete.maximum_male} {parameterToDelete.unit}
+                <br />
+                <span className="font-medium">Female Range:</span> {parameterToDelete.minimum_female} - {parameterToDelete.maximum_female} {parameterToDelete.unit}
               </p>
             </div>
           )}

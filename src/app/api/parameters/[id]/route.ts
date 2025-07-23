@@ -51,11 +51,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { parameter_name, minimum, maximum, unit, description, category_id, sort_order } = body;
+    const { parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order } = body;
 
     // Validate that at least one field is provided
-    if (parameter_name === undefined && minimum === undefined && 
-        maximum === undefined && unit === undefined && description === undefined && 
+    if (parameter_name === undefined && minimum_male === undefined && 
+        maximum_male === undefined && minimum_female === undefined && 
+        maximum_female === undefined && unit === undefined && description === undefined && 
         category_id === undefined && sort_order === undefined) {
       return NextResponse.json(
         { success: false, error: 'At least one field must be provided for update' },
@@ -64,16 +65,30 @@ export async function PATCH(
     }
 
     // Validate data types if provided
-    if (minimum !== undefined && typeof minimum !== 'number') {
+    if (minimum_male !== undefined && typeof minimum_male !== 'number') {
       return NextResponse.json(
-        { success: false, error: 'Minimum must be a number' },
+        { success: false, error: 'Male minimum must be a number' },
         { status: 400 }
       );
     }
 
-    if (maximum !== undefined && typeof maximum !== 'number') {
+    if (maximum_male !== undefined && typeof maximum_male !== 'number') {
       return NextResponse.json(
-        { success: false, error: 'Maximum must be a number' },
+        { success: false, error: 'Male maximum must be a number' },
+        { status: 400 }
+      );
+    }
+
+    if (minimum_female !== undefined && typeof minimum_female !== 'number') {
+      return NextResponse.json(
+        { success: false, error: 'Female minimum must be a number' },
+        { status: 400 }
+      );
+    }
+
+    if (maximum_female !== undefined && typeof maximum_female !== 'number') {
+      return NextResponse.json(
+        { success: false, error: 'Female maximum must be a number' },
         { status: 400 }
       );
     }
@@ -92,18 +107,28 @@ export async function PATCH(
       );
     }
 
-    // Validate minimum < maximum if both are provided
-    if (minimum !== undefined && maximum !== undefined && minimum >= maximum) {
+    // Validate minimum < maximum for male range if both are provided
+    if (minimum_male !== undefined && maximum_male !== undefined && minimum_male >= maximum_male) {
       return NextResponse.json(
-        { success: false, error: 'Minimum must be less than maximum' },
+        { success: false, error: 'Male minimum must be less than male maximum' },
+        { status: 400 }
+      );
+    }
+
+    // Validate minimum < maximum for female range if both are provided
+    if (minimum_female !== undefined && maximum_female !== undefined && minimum_female >= maximum_female) {
+      return NextResponse.json(
+        { success: false, error: 'Female minimum must be less than female maximum' },
         { status: 400 }
       );
     }
 
     const updatedParameter = updateParameter(id, {
       parameter_name: parameter_name?.trim(),
-      minimum,
-      maximum,
+      minimum_male,
+      maximum_male,
+      minimum_female,
+      maximum_female,
       unit: unit?.trim(),
       description: description?.trim(),
       category_id,

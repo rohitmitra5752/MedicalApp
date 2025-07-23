@@ -10,14 +10,17 @@ interface Patient {
   name: string;
   phone_number: string;
   medical_id_number: string;
+  gender: 'male' | 'female';
   created_at: string;
 }
 
 interface Parameter {
   id: number;
   parameter_name: string;
-  minimum: number;
-  maximum: number;
+  minimum_male: number;
+  maximum_male: number;
+  minimum_female: number;
+  maximum_female: number;
   unit: string;
   description: string;
   category_id: number;
@@ -48,6 +51,17 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
   
   const [reportDate, setReportDate] = useState(editDate || new Date().toISOString().split('T')[0]);
   const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
+
+  // Helper functions to get gender-specific ranges
+  const getParameterMinimum = (parameter: Parameter) => {
+    if (!patient) return 0;
+    return patient.gender === 'male' ? parameter.minimum_male : parameter.minimum_female;
+  };
+
+  const getParameterMaximum = (parameter: Parameter) => {
+    if (!patient) return 0;
+    return patient.gender === 'male' ? parameter.maximum_male : parameter.maximum_female;
+  };
   const [existingReportIds, setExistingReportIds] = useState<Record<number, number>>({});
 
   // Error modal state
@@ -321,14 +335,14 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
                                   value={parameterValues[parameter.id] || ''}
                                   onChange={(e) => handleParameterValueChange(parameter.id, e.target.value)}
                                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-16"
-                                  placeholder={`${parameter.minimum}-${parameter.maximum}`}
+                                  placeholder={`${getParameterMinimum(parameter)}-${getParameterMaximum(parameter)}`}
                                 />
                                 <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">
                                   {parameter.unit}
                                 </span>
                               </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Normal range: {parameter.minimum} - {parameter.maximum} {parameter.unit}
+                                Normal range: {getParameterMinimum(parameter)} - {getParameterMaximum(parameter)} {parameter.unit}
                               </p>
                               
                               {/* Visual indicator for out-of-range values */}
@@ -337,7 +351,7 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
                                   const value = parseFloat(parameterValues[parameter.id]);
                                   if (isNaN(value)) return null;
                                   
-                                  const isOutOfRange = value < parameter.minimum || value > parameter.maximum;
+                                  const isOutOfRange = value < getParameterMinimum(parameter) || value > getParameterMaximum(parameter);
                                   
                                   if (isOutOfRange) {
                                     return (

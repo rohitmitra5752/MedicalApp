@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { Modal } from '@/components/Modal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { CountrySelector } from '@/components/CountrySelector';
+import { GenderSelector } from '@/components/GenderSelector';
 
 interface Patient {
   id: number;
   name: string;
   phone_number: string;
   medical_id_number: string;
+  gender: 'male' | 'female';
   created_at: string;
 }
 
@@ -57,7 +59,8 @@ export default function PatientsPage() {
     name: '',
     phone_number: '',
     medical_id_number: '',
-    country_code: '+91' // Default to India
+    country_code: '+91', // Default to India
+    gender: '' as 'male' | 'female' | ''
   });
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function PatientsPage() {
   };
 
   const handleAddPatient = () => {
-    setPatientForm({ name: '', phone_number: '', medical_id_number: '', country_code: '+91' });
+    setPatientForm({ name: '', phone_number: '', medical_id_number: '', country_code: '+91', gender: '' });
     setEditingPatient(null);
     setShowPatientModal(true);
   };
@@ -95,7 +98,8 @@ export default function PatientsPage() {
       name: patient.name,
       phone_number: parsed.number,
       medical_id_number: patient.medical_id_number,
-      country_code: parsed.countryCode
+      country_code: parsed.countryCode,
+      gender: patient.gender
     });
     setEditingPatient(patient);
     setShowPatientModal(true);
@@ -131,6 +135,12 @@ export default function PatientsPage() {
       console.log('Patient submission already in progress, ignoring');
       return;
     }
+
+    // Validate gender selection
+    if (!patientForm.gender) {
+      alert('Please select a gender');
+      return;
+    }
     
     setIsSubmittingPatient(true);
     
@@ -144,7 +154,8 @@ export default function PatientsPage() {
       const formData = {
         name: patientForm.name,
         phone_number: `${patientForm.country_code} ${patientForm.phone_number}`,
-        medical_id_number: patientForm.medical_id_number
+        medical_id_number: patientForm.medical_id_number,
+        gender: patientForm.gender
       };
 
       const response = await fetch(url, {
@@ -343,6 +354,15 @@ export default function PatientsPage() {
                 onChange={(e) => setPatientForm({ ...patientForm, medical_id_number: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Gender
+              </label>
+              <GenderSelector
+                value={patientForm.gender}
+                onChange={(gender) => setPatientForm({ ...patientForm, gender })}
               />
             </div>
           </div>

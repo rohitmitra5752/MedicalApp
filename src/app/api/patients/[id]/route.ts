@@ -51,12 +51,20 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, phone_number, medical_id_number } = body;
+    const { name, phone_number, medical_id_number, gender } = body;
 
     // Validate that at least one field is provided
-    if (name === undefined && phone_number === undefined && medical_id_number === undefined) {
+    if (name === undefined && phone_number === undefined && medical_id_number === undefined && gender === undefined) {
       return NextResponse.json(
         { success: false, error: 'At least one field must be provided for update' },
+        { status: 400 }
+      );
+    }
+
+    // Validate gender if provided
+    if (gender !== undefined && gender !== 'male' && gender !== 'female') {
+      return NextResponse.json(
+        { success: false, error: 'Gender must be either male or female' },
         { status: 400 }
       );
     }
@@ -64,7 +72,8 @@ export async function PATCH(
     const updatedPatient = updatePatient(id, {
       name: name?.trim(),
       phone_number: phone_number?.trim(),
-      medical_id_number: medical_id_number?.trim()
+      medical_id_number: medical_id_number?.trim(),
+      gender
     });
     
     if (!updatedPatient) {

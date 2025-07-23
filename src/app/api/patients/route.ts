@@ -17,11 +17,18 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone_number, medical_id_number } = body;
+    const { name, phone_number, medical_id_number, gender } = body;
 
-    if (!name || !phone_number || !medical_id_number) {
+    if (!name || !phone_number || !medical_id_number || !gender) {
       return NextResponse.json(
         { success: false, error: 'All fields are required' },
+        { status: 400 }
+      );
+    }
+
+    if (gender !== 'male' && gender !== 'female') {
+      return NextResponse.json(
+        { success: false, error: 'Gender must be either male or female' },
         { status: 400 }
       );
     }
@@ -29,7 +36,8 @@ export async function POST(request: NextRequest) {
     const patient = addPatient({
       name: name.trim(),
       phone_number: phone_number.trim(),
-      medical_id_number: medical_id_number.trim()
+      medical_id_number: medical_id_number.trim(),
+      gender
     });
     
     if (!patient) {

@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('API: Request body:', body);
     
-    const { parameter_name, minimum, maximum, unit, description, category_id, sort_order } = body;
+    const { parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order } = body;
 
-    if (!parameter_name || minimum == null || maximum == null || !unit || !description || !category_id) {
+    if (!parameter_name || minimum_male == null || maximum_male == null || minimum_female == null || maximum_female == null || !unit || !description || !category_id) {
       console.log('API: Missing required fields');
       return NextResponse.json(
         { success: false, error: 'All fields including category_id are required' },
@@ -31,10 +31,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (typeof minimum !== 'number' || typeof maximum !== 'number') {
-      console.log('API: Invalid number types for min/max');
+    if (typeof minimum_male !== 'number' || typeof maximum_male !== 'number' || typeof minimum_female !== 'number' || typeof maximum_female !== 'number') {
+      console.log('API: Invalid number types for min/max values');
       return NextResponse.json(
-        { success: false, error: 'Minimum and maximum must be numbers' },
+        { success: false, error: 'All minimum and maximum values must be numbers' },
         { status: 400 }
       );
     }
@@ -47,20 +47,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (minimum >= maximum) {
-      console.log('API: Invalid range - minimum >= maximum');
+    if (minimum_male >= maximum_male) {
+      console.log('API: Invalid male range - minimum >= maximum');
       return NextResponse.json(
-        { success: false, error: 'Minimum must be less than maximum' },
+        { success: false, error: 'Male minimum must be less than male maximum' },
         { status: 400 }
       );
     }
 
-    console.log('API: Adding parameter with data:', { parameter_name, minimum, maximum, unit, description, category_id, sort_order });
+    if (minimum_female >= maximum_female) {
+      console.log('API: Invalid female range - minimum >= maximum');
+      return NextResponse.json(
+        { success: false, error: 'Female minimum must be less than female maximum' },
+        { status: 400 }
+      );
+    }
+
+    console.log('API: Adding parameter with data:', { parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order });
 
     const result = addParameter({
       parameter_name: parameter_name.trim(),
-      minimum,
-      maximum,
+      minimum_male,
+      maximum_male,
+      minimum_female,
+      maximum_female,
       unit: unit.trim(),
       description: description.trim(),
       category_id,

@@ -237,10 +237,17 @@ export function getReportsByPatientWithCategories(patientId: number): ReportWith
       SELECT 
         r.*,
         p.name as patient_name,
+        p.gender as patient_gender,
         param.parameter_name,
         param.unit,
-        param.minimum as parameter_minimum,
-        param.maximum as parameter_maximum,
+        CASE 
+          WHEN p.gender = 'male' THEN param.minimum_male 
+          ELSE param.minimum_female 
+        END as parameter_minimum,
+        CASE 
+          WHEN p.gender = 'male' THEN param.maximum_male 
+          ELSE param.maximum_female 
+        END as parameter_maximum,
         param.description as parameter_description,
         param.category_id,
         param.sort_order as parameter_sort_order,

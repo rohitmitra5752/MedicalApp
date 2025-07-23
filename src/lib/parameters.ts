@@ -3,8 +3,10 @@ import { getDatabase, initializeDatabase } from './db';
 export interface Parameter {
   id: number;
   parameter_name: string;
-  minimum: number;
-  maximum: number;
+  minimum_male: number;
+  maximum_male: number;
+  minimum_female: number;
+  maximum_female: number;
   unit: string;
   description: string;
   category_id: number;
@@ -42,19 +44,52 @@ export function addParameter(parameterData: Omit<Parameter, 'id' | 'created_at'>
     const database = getDatabase();
     initializeDatabase();
     
-    const stmt = database.prepare(`
-      INSERT INTO parameters (parameter_name, minimum, maximum, unit, description, category_id, sort_order) 
-      VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *
-    `);
-    const parameter = stmt.get(
-      parameterData.parameter_name,
-      parameterData.minimum,
-      parameterData.maximum,
-      parameterData.unit,
-      parameterData.description,
-      parameterData.category_id,
-      parameterData.sort_order
-    ) as Parameter;
+    // Check if old columns exist (for backward compatibility during migration)
+    const oldColumnsExist = database.prepare(`
+      SELECT name FROM pragma_table_info('parameters') 
+      WHERE name IN ('minimum', 'maximum')
+    `).all();
+    
+    let stmt;
+    let parameter;
+    
+    if (oldColumnsExist.length === 2) {
+      // Old columns exist, insert into both old and new columns
+      stmt = database.prepare(`
+        INSERT INTO parameters (parameter_name, minimum, maximum, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *
+      `);
+      parameter = stmt.get(
+        parameterData.parameter_name,
+        parameterData.minimum_male, // Use male values for old minimum/maximum for backward compatibility
+        parameterData.maximum_male,
+        parameterData.minimum_male,
+        parameterData.maximum_male,
+        parameterData.minimum_female,
+        parameterData.maximum_female,
+        parameterData.unit,
+        parameterData.description,
+        parameterData.category_id,
+        parameterData.sort_order
+      ) as Parameter;
+    } else {
+      // Only new columns exist
+      stmt = database.prepare(`
+        INSERT INTO parameters (parameter_name, minimum_male, maximum_male, minimum_female, maximum_female, unit, description, category_id, sort_order) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *
+      `);
+      parameter = stmt.get(
+        parameterData.parameter_name,
+        parameterData.minimum_male,
+        parameterData.maximum_male,
+        parameterData.minimum_female,
+        parameterData.maximum_female,
+        parameterData.unit,
+        parameterData.description,
+        parameterData.category_id,
+        parameterData.sort_order
+      ) as Parameter;
+    }
     
     return { success: true, parameter };
   } catch (error: unknown) {
@@ -129,14 +164,24 @@ export function updateParameter(id: number, parameterData: Partial<Omit<Paramete
       updateValues.push(parameterData.parameter_name);
     }
     
-    if (parameterData.minimum !== undefined) {
-      updateFields.push('minimum = ?');
-      updateValues.push(parameterData.minimum);
+    if (parameterData.minimum_male !== undefined) {
+      updateFields.push('minimum_male = ?');
+      updateValues.push(parameterData.minimum_male);
     }
     
-    if (parameterData.maximum !== undefined) {
-      updateFields.push('maximum = ?');
-      updateValues.push(parameterData.maximum);
+    if (parameterData.maximum_male !== undefined) {
+      updateFields.push('maximum_male = ?');
+      updateValues.push(parameterData.maximum_male);
+    }
+    
+    if (parameterData.minimum_female !== undefined) {
+      updateFields.push('minimum_female = ?');
+      updateValues.push(parameterData.minimum_female);
+    }
+    
+    if (parameterData.maximum_female !== undefined) {
+      updateFields.push('maximum_female = ?');
+      updateValues.push(parameterData.maximum_female);
     }
     
     if (parameterData.unit !== undefined) {

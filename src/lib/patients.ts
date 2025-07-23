@@ -5,6 +5,7 @@ export interface Patient {
   name: string;
   phone_number: string;
   medical_id_number: string;
+  gender: 'male' | 'female';
   created_at: string;
 }
 
@@ -28,13 +29,14 @@ export function addPatient(patientData: Omit<Patient, 'id' | 'created_at'>): Pat
     initializeDatabase();
     
     const stmt = database.prepare(`
-      INSERT INTO patients (name, phone_number, medical_id_number) 
-      VALUES (?, ?, ?) RETURNING *
+      INSERT INTO patients (name, phone_number, medical_id_number, gender) 
+      VALUES (?, ?, ?, ?) RETURNING *
     `);
     return stmt.get(
       patientData.name,
       patientData.phone_number,
-      patientData.medical_id_number
+      patientData.medical_id_number,
+      patientData.gender
     ) as Patient;
   } catch (error) {
     console.error('Error adding patient:', error);
@@ -106,6 +108,11 @@ export function updatePatient(id: number, patientData: Partial<Omit<Patient, 'id
     if (patientData.medical_id_number !== undefined) {
       updateFields.push('medical_id_number = ?');
       updateValues.push(patientData.medical_id_number);
+    }
+    
+    if (patientData.gender !== undefined) {
+      updateFields.push('gender = ?');
+      updateValues.push(patientData.gender);
     }
     
     if (updateFields.length === 0) {
