@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone_number, medical_id_number, gender } = body;
+    const { name, phone_number, medical_id_number, gender, is_taking_medicines } = body;
 
     if (!name || !phone_number || !medical_id_number || !gender) {
       return NextResponse.json(
@@ -33,11 +33,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate is_taking_medicines if provided, default to false
+    const medicineStatus = typeof is_taking_medicines === 'boolean' ? is_taking_medicines : false;
+
     const patient = addPatient({
       name: name.trim(),
       phone_number: phone_number.trim(),
       medical_id_number: medical_id_number.trim(),
-      gender
+      gender,
+      is_taking_medicines: medicineStatus
     });
     
     if (!patient) {

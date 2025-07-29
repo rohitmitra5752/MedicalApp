@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertModal } from './AlertModal';
+import { formatDate } from '@/lib/utils';
 
 interface Patient {
   id: number;
@@ -274,7 +275,7 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400">
                   {mode === 'edit' 
-                    ? `Editing report for ${patient.name} on ${new Date(editDate!).toLocaleDateString()}` 
+                    ? `Editing report for ${patient.name} on ${formatDate(editDate!)}` 
                     : `Adding new report for ${patient.name}`
                   }
                 </p>

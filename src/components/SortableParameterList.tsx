@@ -40,15 +40,13 @@ interface SortableParameterItemProps {
   onEdit: (parameter: Parameter) => void;
   onDelete: (parameter: Parameter) => void;
   onSortOrderChange: (parameterId: number, newSortOrder: number) => void;
-  isDragging?: boolean;
 }
 
 function SortableParameterItem({ 
   parameter, 
   onEdit, 
   onDelete, 
-  onSortOrderChange,
-  isDragging = false 
+  onSortOrderChange
 }: SortableParameterItemProps) {
   const [isEditingSortOrder, setIsEditingSortOrder] = useState(false);
   const [tempSortOrder, setTempSortOrder] = useState(parameter.sort_order.toString());
@@ -247,7 +245,7 @@ export function SortableParameterList({
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-3">
-            {sortedParameters.map((parameter, index) => (
+            {sortedParameters.map((parameter) => (
               <SortableParameterItem
                 key={parameter.id}
                 parameter={parameter}

@@ -51,10 +51,10 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, phone_number, medical_id_number, gender } = body;
+    const { name, phone_number, medical_id_number, gender, is_taking_medicines } = body;
 
     // Validate that at least one field is provided
-    if (name === undefined && phone_number === undefined && medical_id_number === undefined && gender === undefined) {
+    if (name === undefined && phone_number === undefined && medical_id_number === undefined && gender === undefined && is_taking_medicines === undefined) {
       return NextResponse.json(
         { success: false, error: 'At least one field must be provided for update' },
         { status: 400 }
@@ -69,11 +69,20 @@ export async function PATCH(
       );
     }
 
+    // Validate is_taking_medicines if provided
+    if (is_taking_medicines !== undefined && typeof is_taking_medicines !== 'boolean') {
+      return NextResponse.json(
+        { success: false, error: 'is_taking_medicines must be a boolean' },
+        { status: 400 }
+      );
+    }
+
     const updatedPatient = updatePatient(id, {
       name: name?.trim(),
       phone_number: phone_number?.trim(),
       medical_id_number: medical_id_number?.trim(),
-      gender
+      gender,
+      is_taking_medicines
     });
     
     if (!updatedPatient) {

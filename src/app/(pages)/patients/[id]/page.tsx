@@ -6,12 +6,18 @@ import Link from 'next/link';
 import DateReportCard from '@/components/DateReportCard';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { AlertModal } from '@/components/AlertModal';
+import { Modal } from '@/components/Modal';
+import { CountrySelector } from '@/components/CountrySelector';
+import { SexSelector } from '@/components/SexSelector';
+import { parsePhoneNumber, formatDate } from '@/lib/utils';
 
 interface Patient {
   id: number;
   name: string;
   phone_number: string;
   medical_id_number: string;
+  gender: 'male' | 'female';
+  is_taking_medicines: boolean;
   created_at: string;
 }
 
@@ -50,6 +56,15 @@ interface PatientImportExportProps {
   patientId: string;
   patientName: string;
   onDataUpdate: () => void;
+}
+
+interface PatientForm {
+  name: string;
+  phone_number: string;
+  medical_id_number: string;
+  country_code: string;
+  gender: 'male' | 'female';
+  is_taking_medicines: boolean;
 }
 
 function PatientImportExport({ patientId, patientName, onDataUpdate }: PatientImportExportProps) {
@@ -317,7 +332,17 @@ export default function PatientDetailPage() {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [alertTitle, setAlertTitle] = useState('');
-
+  
+  // Edit patient modal states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [patientForm, setPatientForm] = useState<PatientForm>({
+    name: '',
+    phone_number: '',
+    medical_id_number: '',
+    country_code: '+91',
+    gender: 'male',
+    is_taking_medicines: false
+  });
   const fetchPatientData = useCallback(async () => {
     try {
       const response = await fetch(`/api/patients/${patientId}`);
@@ -435,20 +460,68 @@ export default function PatientDetailPage() {
     }));
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   // Helper functions for modals
   const showAlertModal = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     setAlertTitle(title);
     setAlertMessage(message);
     setAlertType(type);
     setShowAlert(true);
+  };
+
+  // Edit patient functions
+  const handleEditPatient = () => {
+    if (!patient) return;
+    
+    // Parse existing phone number to separate country code and number
+    const parsed = parsePhoneNumber(patient.phone_number);
+    
+    setPatientForm({
+      name: patient.name,
+      phone_number: parsed.number,
+      medical_id_number: patient.medical_id_number,
+      country_code: parsed.countryCode,
+      gender: patient.gender,
+      is_taking_medicines: patient.is_taking_medicines
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSavePatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate gender selection
+    if (!patientForm.gender) {
+      showAlertModal('Validation Error', 'Please select a gender', 'error');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/patients/${patientId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: patientForm.name.trim(),
+          phone_number: `${patientForm.country_code} ${patientForm.phone_number}`.trim(),
+          medical_id_number: patientForm.medical_id_number.trim(),
+          gender: patientForm.gender,
+          is_taking_medicines: patientForm.is_taking_medicines
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setShowEditModal(false);
+        fetchPatientData(); // Refresh patient data
+        showAlertModal('Success', 'Patient updated successfully', 'success');
+      } else {
+        showAlertModal('Error', data.error || 'Failed to update patient', 'error');
+      }
+    } catch {
+      showAlertModal('Error', 'Network error occurred', 'error');
+    }
   };
 
   const handleDeleteReportClick = (date: string) => {
@@ -533,10 +606,20 @@ export default function PatientDetailPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full">
-                  <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div 
+                  className="relative bg-blue-100 dark:bg-blue-900 p-4 rounded-full cursor-pointer group transition-all duration-200 hover:bg-blue-200 dark:hover:bg-blue-800"
+                  onClick={handleEditPatient}
+                  title="Click to edit patient"
+                >
+                  <svg className="w-8 h-8 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
+                  {/* Edit icon overlay - centered on the avatar */}
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </div>
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -570,6 +653,46 @@ export default function PatientDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Medicine Instructions Section - Only show if patient is taking medicines */}
+        {patient.is_taking_medicines && (
+          <div className="mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+                  <div className="bg-green-100 dark:bg-green-900 p-2 rounded-full mr-3">
+                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 7.172V5L8 4z" />
+                    </svg>
+                  </div>
+                  Medicine Instructions
+                </h2>
+                <Link
+                  href={`/patients/${patient.id}/medicines`}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                  title="Edit prescription"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Prescription
+                </Link>
+              </div>
+              
+              {/* Placeholder content */}
+              <div className="text-center py-8">
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
+                  <p className="text-gray-600 dark:text-gray-400 mb-2">
+                    Medicine instructions will be displayed here.
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">
+                    Click &quot;Edit Prescription&quot; to manage this patient&apos;s medicine schedule.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Medical History */}
         <div className="space-y-6">
@@ -625,6 +748,118 @@ export default function PatientDetailPage() {
       </ConfirmationModal>
 
       {/* Alert Modal */}
+      {/* Edit Patient Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Patient"
+      >
+        <form onSubmit={handleSavePatient}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Patient Name *
+              </label>
+              <input
+                type="text"
+                value={patientForm.name}
+                onChange={(e) => setPatientForm({...patientForm, name: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                         dark:bg-gray-700 dark:text-white"
+                placeholder="Enter patient name"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Phone Number *
+              </label>
+              <div className="flex">
+                <CountrySelector
+                  value={patientForm.country_code}
+                  onChange={(code) => setPatientForm({...patientForm, country_code: code})}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white bg-white w-[100px] flex-shrink-0"
+                />
+                <input
+                  type="tel"
+                  value={patientForm.phone_number}
+                  onChange={(e) => setPatientForm({...patientForm, phone_number: e.target.value})}
+                  placeholder="123-456-7890"
+                  className="flex-1 px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Enter the phone number without the country code
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Medical ID Number *
+              </label>
+              <input
+                type="text"
+                value={patientForm.medical_id_number}
+                onChange={(e) => setPatientForm({...patientForm, medical_id_number: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                         dark:bg-gray-700 dark:text-white"
+                placeholder="Enter medical ID number"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Gender *
+              </label>
+              <SexSelector
+                value={patientForm.gender}
+                onChange={(gender) => setPatientForm({...patientForm, gender})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Taking Medicines
+              </label>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-700 dark:text-gray-300">No</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={patientForm.is_taking_medicines}
+                    onChange={(e) => setPatientForm({...patientForm, is_taking_medicines: e.target.checked})}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                </label>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       <AlertModal
         isOpen={showAlert}
         onClose={() => setShowAlert(false)}
