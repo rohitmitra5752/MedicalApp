@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { BackButton } from '@/components/BackButton';
 

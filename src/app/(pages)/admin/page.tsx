@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Modal } from '@/components/Modal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { SortableParameterList } from '@/components/SortableParameterList';
