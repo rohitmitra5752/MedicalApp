@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DateReportCard from '@/components/DateReportCard';
+import ParameterChart from '@/components/ParameterChart';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { AlertModal } from '@/components/AlertModal';
 import { Modal } from '@/components/Modal';
@@ -700,6 +701,16 @@ export default function PatientDetailPage() {
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
               Medical History
             </h2>
+          </div>
+
+          {/* Parameter Chart */}
+          <ParameterChart reports={reports} />
+
+          {/* Individual Date Reports */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+              Individual Reports
+            </h3>
           </div>
 
           {getAllDates().length === 0 ? (

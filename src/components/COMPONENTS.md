@@ -294,7 +294,58 @@ interface DateReportCardProps {
 - Category-based parameter filtering
 - Date formatting
 
-### 10. FlagIcon
+### 10. ParameterChart
+**File:** `ParameterChart.tsx`
+
+Interactive chart component for visualizing medical parameter trends over time.
+
+#### Props
+```typescript
+interface ParameterChartProps {
+  reports: ReportWithCategory[];
+}
+```
+
+#### Features
+- Interactive line chart with Chart.js/react-chartjs-2
+- Smart parameter selection (abnormal parameters prioritized)
+- Color-coded data points (blue=normal, red=abnormal)
+- Normal range reference lines (green dashed)
+- Parameter dropdown with abnormal indicators (⚠️)
+- Responsive design with fixed aspect ratio
+- Dark mode support
+- Detailed tooltips with normal/abnormal status
+- Parameter information panel showing:
+  - Normal range values
+  - Total data points
+  - Count of abnormal values
+- Visual legend explaining colors and symbols
+- Empty state with informative message
+
+#### Key Functions
+- `parameterOptions` - Generates sorted parameter list with abnormal flags
+- `chartData` - Processes reports into Chart.js format
+- `chartOptions` - Configures chart appearance and interactions
+- Smart default selection (first abnormal parameter or first available)
+
+#### Dependencies
+- `chart.js` - Core charting library
+- `react-chartjs-2` - React wrapper for Chart.js
+- Registered Chart.js components: CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend
+
+#### Usage
+```tsx
+<ParameterChart reports={patientReports} />
+```
+
+#### Visual Elements
+- **Blue dots**: Normal parameter values
+- **Red dots**: Abnormal parameter values (outside normal range)
+- **Green dashed lines**: Normal minimum/maximum reference lines
+- **Parameter selector**: Dropdown with units and abnormal warnings
+- **Info panel**: Shows range, data count, and abnormal count
+
+### 11. FlagIcon
 **File:** `FlagIcon.tsx`
 
 Component for displaying country flag icons.
@@ -313,7 +364,7 @@ interface FlagIconProps {
 - Consistent sizing (16x12)
 - Next.js Image optimization
 
-### 11. SortableParameterList
+### 12. SortableParameterList
 **File:** `SortableParameterList.tsx`
 
 Drag-and-drop sortable list for medical parameters with @dnd-kit.
@@ -347,7 +398,7 @@ interface SortableParameterItemProps {
 
 ## UI Components
 
-### 12. ToggleSwitch
+### 13. ToggleSwitch
 **File:** `ToggleSwitch.tsx`
 
 Customizable toggle switch component.
@@ -469,12 +520,13 @@ function PatientActions() {
 
 ### Form with Selectors
 ```tsx
-import { SexSelector, CountrySelector, ToggleSwitch } from '@/components';
+import { SexSelector, CountrySelector, ToggleSwitch, ParameterChart } from '@/components';
 
 function PatientForm() {
   const [gender, setGender] = useState<'male' | 'female' | ''>('');
   const [countryCode, setCountryCode] = useState('+91');
   const [isActive, setIsActive] = useState(false);
+  const [reports, setReports] = useState<ReportWithCategory[]>([]);
 
   return (
     <form>
@@ -507,6 +559,24 @@ function PatientForm() {
 }
 ```
 
+### Medical Parameter Chart
+```tsx
+import { ParameterChart } from '@/components';
+
+function PatientDashboard({ patientReports }: { patientReports: ReportWithCategory[] }) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">Medical History</h2>
+      
+      {/* Interactive parameter chart */}
+      <ParameterChart reports={patientReports} />
+      
+      {/* Individual report sections would follow */}
+    </div>
+  );
+}
+```
+
 ---
 
 ## Best Practices
@@ -524,9 +594,10 @@ function PatientForm() {
 - **Next.js 15** - App Router and Image optimization
 - **Tailwind CSS** - Styling framework
 - **@dnd-kit** - Drag and drop functionality (SortableParameterList only)
+- **Chart.js & react-chartjs-2** - Interactive charts (ParameterChart only)
 - **Custom hooks** - Focus management and modal state
 
 ---
 
-*Last updated: [Current Date]*
-*Version: 1.0.0*
+*Last updated: July 29, 2025*
+*Version: 1.1.0*
