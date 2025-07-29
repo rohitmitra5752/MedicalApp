@@ -7,8 +7,9 @@ This document provides an overview of all React components available in the medi
 1. [Modal Components](#modal-components)
 2. [Form Components](#form-components)
 3. [Display Components](#display-components)
-4. [UI Components](#ui-components)
-5. [Usage Examples](#usage-examples)
+4. [Navigation Components](#navigation-components)
+5. [UI Components](#ui-components)
+6. [Usage Examples](#usage-examples)
 
 ---
 
@@ -396,9 +397,54 @@ interface SortableParameterItemProps {
 
 ---
 
+## Navigation Components
+
+### 13. BackButton
+**File:** `BackButton.tsx`
+
+Reusable navigation component for consistent "Back to *" functionality across the application.
+
+#### Props
+```typescript
+interface BackButtonProps {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}
+```
+
+#### Features
+- Consistent left arrow icon
+- Standardized styling with customization support
+- Built on Next.js Link component
+- Dark mode support
+- Hover effects
+
+#### Usage
+```tsx
+// Basic usage
+<BackButton href="/patients">Back to Patients</BackButton>
+
+// With custom colors
+<BackButton 
+  href="/" 
+  className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300"
+>
+  Back to Home
+</BackButton>
+```
+
+#### Implementation Details
+- Uses SVG left arrow icon for consistency
+- Combines default classes with optional custom classes
+- Maintains focus and accessibility standards
+- Replaces inline back button implementations throughout the app
+
+---
+
 ## UI Components
 
-### 13. ToggleSwitch
+### 14. ToggleSwitch
 **File:** `ToggleSwitch.tsx`
 
 Customizable toggle switch component.

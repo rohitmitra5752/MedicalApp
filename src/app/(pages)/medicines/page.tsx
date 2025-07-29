@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { MedicineWithInventory, Medicine } from '@/lib/db';
 import Link from 'next/link';
+import { BackButton } from '@/components/BackButton';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 
 interface MedicineFormData {
   name: string;
@@ -40,6 +42,11 @@ export default function MedicinesPage() {
       }
     ]
   });
+
+  // Confirmation modal state
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deletingMedicineId, setDeletingMedicineId] = useState<number | null>(null);
+  const [deletingMedicineName, setDeletingMedicineName] = useState<string>('');
 
   const fetchMedicines = async (search?: string) => {
     try {
@@ -130,12 +137,19 @@ export default function MedicinesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this medicine?')) {
-      return;
+    const medicine = medicines.find(m => m.id === id);
+    if (medicine) {
+      setDeletingMedicineId(id);
+      setDeletingMedicineName(medicine.name);
+      setShowDeleteConfirmation(true);
     }
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingMedicineId) return;
 
     try {
-      const response = await fetch(`/api/medicines/${id}`, {
+      const response = await fetch(`/api/medicines/${deletingMedicineId}`, {
         method: 'DELETE',
       });
 
@@ -147,6 +161,10 @@ export default function MedicinesPage() {
       }
     } catch {
       setError('Network error occurred');
+    } finally {
+      setShowDeleteConfirmation(false);
+      setDeletingMedicineId(null);
+      setDeletingMedicineName('');
     }
   };
 
@@ -315,15 +333,9 @@ export default function MedicinesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 mb-4"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+            <BackButton href="/" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
               Back to Home
-            </Link>
+            </BackButton>
             <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
               Medicine Inventory
             </h1>
@@ -770,6 +782,25 @@ export default function MedicinesPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => {
+          setShowDeleteConfirmation(false);
+          setDeletingMedicineId(null);
+          setDeletingMedicineName('');
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Medicine"
+        confirmText="Delete"
+        isDestructive={true}
+      >
+        <p>Are you sure you want to delete <strong>"{deletingMedicineName}"</strong>?</p>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          This action cannot be undone.
+        </p>
+      </ConfirmationModal>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DateReportCard from '@/components/DateReportCard';
 import ParameterChart from '@/components/ParameterChart';
+import { BackButton } from '@/components/BackButton';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { AlertModal } from '@/components/AlertModal';
 import { Modal } from '@/components/Modal';
@@ -580,9 +581,9 @@ export default function PatientDetailPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Patient Not Found</h1>
-            <Link href="/patients" className="text-blue-600 hover:text-blue-800">
+            <BackButton href="/patients">
               Back to Patients
-            </Link>
+            </BackButton>
           </div>
         </div>
       </div>
@@ -594,15 +595,9 @@ export default function PatientDetailPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            href="/patients"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+          <BackButton href="/patients">
             Back to Patients
-          </Link>
+          </BackButton>
           
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-center justify-between">
