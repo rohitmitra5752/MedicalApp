@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';
-import ReportForm from '@/components/ReportForm';
+import { ReportForm } from '@/components';
 
 export default function EditReportPage() {
   const params = useParams();

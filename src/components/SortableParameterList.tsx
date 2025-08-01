@@ -20,6 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Icon, Icons } from './Icon';
 
 interface Parameter {
   id: number;
@@ -102,9 +103,7 @@ function SortableParameterItem({
         className="flex items-center cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         title="Drag to reorder"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-        </svg>
+        <Icon name={Icons.GRIP_VERTICAL} size="sm" />
       </div>
 
       {/* Sort Order */}
@@ -151,18 +150,14 @@ function SortableParameterItem({
           className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-colors"
           title="Edit parameter"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+          <Icon name={Icons.EDIT} size="sm" />
         </button>
         <button
           onClick={() => onDelete(parameter)}
           className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
           title="Delete parameter"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
+          <Icon name={Icons.DELETE} size="sm" />
         </button>
       </div>
     </div>
@@ -227,9 +222,7 @@ export function SortableParameterList({
       {/* Header with instructions */}
       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
         <span className="flex items-center">
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
+          <Icon name={Icons.GRIP_VERTICAL} size="sm" className="mr-1" />
           Drag to reorder
         </span>
         <span>Click sort order to edit</span>

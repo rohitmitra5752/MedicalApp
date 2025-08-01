@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FlagIcon } from './FlagIcon';
+import { Icon, Icons } from './Icon';
 
 interface CountrySelectorProps {
   value: string;
@@ -63,9 +64,11 @@ export const CountrySelector = ({
           <FlagIcon countryCode={selectedCountry?.flag || 'IN'} />
           <span className="truncate">{selectedCountry?.code}</span>
         </div>
-        <svg className={`w-4 h-4 ml-1 flex-shrink-0 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-        </svg>
+        <Icon 
+          name={Icons.CHEVRON_DOWN} 
+          className={`ml-1 flex-shrink-0 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+          size="sm"
+        />
       </button>
       
       {isOpen && (

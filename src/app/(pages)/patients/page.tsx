@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Modal } from '@/components/Modal';
-import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { CountrySelector } from '@/components/CountrySelector';
-import { SexSelector } from '@/components/SexSelector';
-import { ToggleSwitch } from '@/components/ToggleSwitch';
-import { BackButton } from '@/components/BackButton';
+import { Modal, ConfirmationModal, CountrySelector, SexSelector, ToggleSwitch, BackButton, Icon, Icons } from '@/components';
 import { parsePhoneNumber } from '@/lib/utils';
 
 interface Patient {
@@ -187,9 +182,7 @@ export default function PatientsPage() {
             onClick={handleAddPatient}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Icon name={Icons.ADD} size="sm" className="mr-2" />
             Add Patient
           </button>
         </div>
@@ -197,9 +190,7 @@ export default function PatientsPage() {
         {/* Patients List */}
         {patients.length === 0 ? (            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
               <div className="text-gray-400 dark:text-gray-500 mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <Icon name={Icons.USERS} size="2xl" className="mx-auto" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No patients found</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
@@ -225,9 +216,7 @@ export default function PatientsPage() {
                     className="flex items-center space-x-4 flex-1 group"
                   >
                     <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
+                      <Icon name={Icons.USER} size="md" className="text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
@@ -239,9 +228,7 @@ export default function PatientsPage() {
                       </div>
                     </div>
                     <div className="text-gray-400 group-hover:text-blue-500">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                      <Icon name={Icons.CHEVRON_RIGHT} size="sm" />
                     </div>
                   </Link>
                   
@@ -252,18 +239,14 @@ export default function PatientsPage() {
                       className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded transition-colors"
                       title="Edit patient"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <Icon name={Icons.EDIT} size="xs" />
                     </button>
                     <button
                       onClick={() => handleDeletePatient(patient)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors"
                       title="Delete patient"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
+                      <Icon name={Icons.DELETE} size="xs" />
                     </button>
                   </div>
                 </div>
@@ -396,9 +379,7 @@ export default function PatientsPage() {
       >
         <div className="flex items-center mb-4">
           <div className="bg-red-100 dark:bg-red-900 p-3 rounded-full mr-4">
-            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+            <Icon name={Icons.WARNING} size="md" className="text-red-600 dark:text-red-400" />
           </div>
           <div>
             <h4 className="text-lg font-medium text-gray-900 dark:text-white">

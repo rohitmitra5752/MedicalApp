@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Icon, Icons } from './Icon';
 
 interface BackButtonProps {
   href: string;
@@ -14,9 +15,7 @@ export function BackButton({ href, children, className = "" }: BackButtonProps) 
 
   return (
     <Link href={href} className={combinedClasses}>
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5M12 5l-7 7 7 7" />
-      </svg>
+      <Icon name={Icons.ARROW_LEFT} className="mr-2" />
       {children}
     </Link>
   );

@@ -4,12 +4,81 @@ This document provides an overview of all React components available in the medi
 
 ## 📋 Table of Contents
 
+0. [Icon Component](#icon-component)
 1. [Modal Components](#modal-components)
 2. [Form Components](#form-components)
 3. [Display Components](#display-components)
 4. [Navigation Components](#navigation-components)
 5. [UI Components](#ui-components)
 6. [Usage Examples](#usage-examples)
+
+---
+
+## Icon Component
+
+### Icon
+**File:** `Icon.tsx`
+
+Centralized SVG icon component that replaces inline SVG code throughout the application.
+
+#### Props
+```typescript
+interface IconProps {
+  name: IconName;
+  className?: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number;
+  strokeWidth?: number;
+}
+
+export type IconName = 
+  | 'edit' | 'delete' | 'add' | 'check' | 'close'
+  | 'arrow-left' | 'arrow-right' | 'chevron-right' | 'chevron-down'
+  | 'user' | 'users' | 'medicine' | 'settings'
+  | 'document' | 'download' | 'upload' | 'chart' | 'table'
+  | 'spinner' | 'warning' | 'info' | 'success' | 'error'
+  | 'success-circle' | 'warning-triangle'
+  | 'grid' | 'grip-vertical' | 'male' | 'female';
+```
+
+#### Features
+- **25+ Pre-defined Icons**: All commonly used icons in the app
+- **Consistent Sizing**: Standardized size system (xs to xl)
+- **Type Safety**: TypeScript ensures only valid icon names are used
+- **Customizable**: Support for custom classes and stroke width
+- **Performance**: Eliminates duplicate SVG code
+- **Dark Mode**: Inherits color from parent classes
+
+#### Usage Examples
+```tsx
+// Basic usage
+<Icon name="edit" />
+
+// With custom size and color
+<Icon name="delete" size="lg" className="text-red-600" />
+
+// In buttons
+<button className="flex items-center">
+  <Icon name="add" size="sm" className="mr-2" />
+  Add Patient
+</button>
+
+// Custom stroke width
+<Icon name="user" strokeWidth={1.5} />
+```
+
+#### Migration Benefits
+- **Before**: 10+ lines of SVG code per icon
+- **After**: 1 line with Icon component
+- **Consistency**: All icons follow same patterns
+- **Maintainability**: Changes to icons in one place
+
+#### Available Icons
+**Basic Actions**: edit, delete, add, check, close  
+**Navigation**: arrow-left, arrow-right, chevron-right, chevron-down  
+**User & Medical**: user, users, medicine, settings  
+**Documents**: document, download, upload, chart, table  
+**Status**: spinner, warning, info, success, error, success-circle, warning-triangle  
+**UI Elements**: grid, grip-vertical, male, female  
 
 ---
 

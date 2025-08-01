@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import ReportForm from '@/components/ReportForm';
+import { ReportForm } from '@/components';
 
 export default function AddReportPage() {
   const params = useParams();
