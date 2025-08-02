@@ -15,7 +15,6 @@ export { ToggleSwitch } from './ToggleSwitch';
 export { default as DateReportCard } from './DateReportCard';
 export { default as ParameterChart } from './ParameterChart';
 export { FlagIcon } from './FlagIcon';
-export { SortableParameterList } from './SortableParameterList';
 
 // Form Components (from forms subfolder)
 export { ReportForm } from './forms';

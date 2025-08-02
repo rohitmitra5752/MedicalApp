@@ -7,10 +7,11 @@ This document provides an overview of all React components available in the medi
 0. [Icon Component](#icon-component)
 1. [Modal Components](#modal-components)
 2. [Form Components](#form-components)
-3. [Display Components](#display-components)
-4. [Navigation Components](#navigation-components)
-5. [UI Components](#ui-components)
-6. [Usage Examples](#usage-examples)
+3. [Admin Form Components](#admin-form-components)
+4. [Display Components](#display-components)
+5. [Navigation Components](#navigation-components)
+6. [UI Components](#ui-components)
+7. [Usage Examples](#usage-examples)
 
 ---
 
@@ -330,6 +331,73 @@ interface SexSelectorProps {
 
 ---
 
+## Admin Form Components
+
+### ImportExportParameters
+**File:** `forms/admin/import-export-parameters.tsx`
+
+Component for importing and exporting medical parameter data as JSON files.
+
+#### Props
+```typescript
+interface ImportExportParametersProps {
+  onDataUpdate: () => void;
+}
+```
+
+#### Features
+- **Export functionality**: Downloads all parameter categories and parameters as JSON
+- **Import functionality**: Uploads and processes JSON files with parameter data
+- **Duplicate handling**: Option to skip duplicates during import
+- **Error handling**: Displays import/export errors and success messages
+- **Progress indicators**: Shows loading states during operations
+- **Import results**: Detailed feedback on imported/skipped items
+
+#### Key Functions
+- `handleExport()` - Fetches and downloads parameter data
+- `handleImport()` - Processes uploaded JSON files
+- `handleFileChange()` - Manages file selection
+
+### ParameterManagement
+**File:** `forms/admin/parameter-management.tsx`
+
+Comprehensive component for managing medical parameters and categories.
+
+#### Props
+```typescript
+interface ParameterManagementProps {
+  onDataUpdate?: () => void;
+}
+```
+
+#### Features
+- **Category management**: Create, edit, delete parameter categories
+- **Parameter management**: Full CRUD operations for parameters
+- **Accordion interface**: Expandable categories showing their parameters
+- **Drag & drop sorting**: Reorder parameters within categories
+- **Modal forms**: Separate modals for category and parameter forms
+- **Confirmation dialogs**: Safe deletion with detailed warnings
+- **Real-time updates**: Automatic data refresh after operations
+- **Error handling**: Form validation and API error display
+
+#### Modal Components
+- Category creation/editing modal
+- Parameter creation/editing modal with:
+  - Male/female reference ranges
+  - Unit specification
+  - Sort order management
+  - Description field
+- Delete confirmation modals for categories and parameters
+
+#### Key Functions
+- `fetchData()` - Loads categories and parameters
+- `submitCategoryForm()` - Handles category creation/updates
+- `submitParameterForm()` - Handles parameter creation/updates
+- `handleParameterReorder()` - Updates parameter sort order
+- Confirmation handlers for safe deletion
+
+---
+
 ## Display Components
 
 ### 9. DateReportCard
@@ -434,41 +502,11 @@ interface FlagIconProps {
 - Consistent sizing (16x12)
 - Next.js Image optimization
 
-### 12. SortableParameterList
-**File:** `SortableParameterList.tsx`
-
-Drag-and-drop sortable list for medical parameters with @dnd-kit.
-
-#### Props
-```typescript
-interface SortableParameterItemProps {
-  parameter: Parameter;
-  onEdit: (parameter: Parameter) => void;
-  onDelete: (parameter: Parameter) => void;
-  onSortOrderChange: (parameterId: number, newSortOrder: number) => void;
-  isDragging?: boolean;
-}
-```
-
-#### Features
-- Drag-and-drop reordering
-- Inline sort order editing
-- Parameter information display
-- Sex-specific ranges display
-- Action buttons (Edit/Delete)
-- Visual drag feedback
-- Keyboard navigation support
-
-#### Dependencies
-- `@dnd-kit/core` - Core drag and drop functionality
-- `@dnd-kit/sortable` - Sortable list utilities
-- `@dnd-kit/utilities` - CSS utilities
-
 ---
 
 ## Navigation Components
 
-### 13. BackButton
+### 12. BackButton
 **File:** `BackButton.tsx`
 
 Reusable navigation component for consistent "Back to *" functionality across the application.
@@ -513,7 +551,7 @@ interface BackButtonProps {
 
 ## UI Components
 
-### 14. ToggleSwitch
+### 13. ToggleSwitch
 **File:** `ToggleSwitch.tsx`
 
 Customizable toggle switch component.

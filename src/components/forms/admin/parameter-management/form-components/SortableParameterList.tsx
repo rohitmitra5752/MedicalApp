@@ -20,21 +20,8 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Icon, Icons } from './icons';
-
-interface Parameter {
-  id: number;
-  parameter_name: string;
-  minimum_male: number;
-  maximum_male: number;
-  minimum_female: number;
-  maximum_female: number;
-  unit: string;
-  description: string;
-  category_id: number;
-  sort_order: number;
-  created_at: string;
-}
+import { Icon, Icons } from '@/components';
+import { Parameter } from '../types';
 
 interface SortableParameterItemProps {
   parameter: Parameter;
@@ -172,7 +159,7 @@ interface SortableParameterListProps {
   onSortOrderChange: (parameterId: number, newSortOrder: number) => void;
 }
 
-export function SortableParameterList({ 
+export default function SortableParameterList({ 
   parameters, 
   onEdit, 
   onDelete, 
