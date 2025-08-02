@@ -1,14 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { BackButton, Icon, Icons } from '@/components';
 import { ImportExportParameters, ParameterManagement } from '@/components/forms';
 
 export default function AdminPage() {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
   const handleDataUpdate = () => {
-    setRefreshTrigger(prev => prev + 1);
+    // Data updates are now handled internally by each component
+    // No need to force re-renders from the parent
   };
 
   return (
@@ -32,7 +30,7 @@ export default function AdminPage() {
         {/* Admin Sections */}
         <div className="space-y-8">
           {/* Parameter Management Section */}
-          <ParameterManagement key={`param-${refreshTrigger}`} onDataUpdate={handleDataUpdate} />
+          <ParameterManagement onDataUpdate={handleDataUpdate} />
 
           {/* System Settings Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6">

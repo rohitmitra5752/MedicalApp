@@ -209,7 +209,7 @@ export default function ParameterManagement({ onDataUpdate }: ParameterManagemen
           return category;
         })
       );
-      onDataUpdate?.(); // Notify parent of data change
+      // No need to notify parent since reordering is a local state change
     } catch (error) {
       console.error('Error updating parameter order:', error);
       // Optionally, you could show an error message to the user
