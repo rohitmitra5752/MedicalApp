@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AlertModal } from './AlertModal';
-import { BackButton } from './BackButton';
+import { AlertModal, BackButton, Icon, Icons } from './';
 import { formatDate } from '@/lib/utils';
-import { Icon, Icons } from './Icon';
 
 interface Patient {
   id: number;

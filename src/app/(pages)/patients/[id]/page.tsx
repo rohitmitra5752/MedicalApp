@@ -521,7 +521,7 @@ export default function PatientDetailPage() {
   };
 
   const handleEditReport = (date: string) => {
-    router.push(`/patients/${patientId}/edit-report?date=${date}`);
+    router.push(`/patients/${patientId}/report?mode=edit&date=${date}`);
   };
 
   const handleDeleteReport = async () => {
@@ -622,7 +622,7 @@ export default function PatientDetailPage() {
                   }}
                 />
                 <Link
-                  href={`/patients/${patient.id}/add-report`}
+                  href={`/patients/${patient.id}/report?mode=add`}
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
                 >
                   <Icon name={Icons.ADD} size="sm" className="mr-2" />

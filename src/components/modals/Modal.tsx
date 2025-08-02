@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
-import { Icon, Icons } from './Icon';
+import { Icon, Icons } from '../Icon';
 
 interface ModalProps {
   isOpen: boolean;

@@ -53,8 +53,8 @@ src/
 │   │       ├── page.tsx          # Patient listing
 │   │       └── [id]/
 │   │           ├── page.tsx      # Individual patient details
-│   │           └── add-report/
-│   │               └── page.tsx  # Add medical report form
+│   │           └── report/
+│   │               └── page.tsx  # Add/edit medical report form (unified)
 │   ├── api/                       # API routes (JSON responses)
 │   │   ├── parameter-categories/  # Parameter category management
 │   │   │   ├── route.ts          # GET & POST categories
