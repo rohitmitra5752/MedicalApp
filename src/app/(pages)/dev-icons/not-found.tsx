@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
 export default function DevIconsNotFound() {
   // This will be shown if the page is accessed but shouldn't be available
@@ -15,12 +16,12 @@ export default function DevIconsNotFound() {
         <p className="text-gray-600 mb-6">
           This page is only available in development mode.
         </p>
-        <a
+        <Link
           href="/"
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           Return Home
-        </a>
+        </Link>
       </div>
     </div>
   );

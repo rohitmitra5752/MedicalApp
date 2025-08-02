@@ -50,7 +50,7 @@ export default function DevIconsPage() {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Size:</label>
               <select
                 value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value as any)}
+                onChange={(e) => setSelectedSize(e.target.value as 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl')}
                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="xs">XS (16px)</option>
