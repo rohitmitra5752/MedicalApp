@@ -16,4 +16,6 @@ export { default as DateReportCard } from './DateReportCard';
 export { default as ParameterChart } from './ParameterChart';
 export { FlagIcon } from './FlagIcon';
 export { SortableParameterList } from './SortableParameterList';
-export { default as ReportForm } from './ReportForm';
+
+// Form Components (from forms subfolder)
+export { ReportForm } from './forms';
