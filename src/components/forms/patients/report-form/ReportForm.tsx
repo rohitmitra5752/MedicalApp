@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AlertModal, BackButton, Icon, Icons } from '../../';
+import { AlertModal, BackButton, Icon, Icons } from '@/components';
 import { formatDate } from '@/lib/utils';
 import type { Patient, Parameter, ParameterCategory, ReportFormProps } from './types';
 import {

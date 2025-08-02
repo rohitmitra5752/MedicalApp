@@ -1,5 +1,5 @@
 // Form Components
-export { ReportForm } from './report-form';
+export { ReportForm } from './patients';
 
 // Medicine Page Component
 export { MedicinesPageContent } from './medicines';

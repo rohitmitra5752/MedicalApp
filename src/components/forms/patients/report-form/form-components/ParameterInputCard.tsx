@@ -1,4 +1,4 @@
-import { Icon, Icons } from '../../../';
+import { Icon, Icons } from '@/components';
 import type { Patient, Parameter } from '../types';
 import { getParameterMinimum, getParameterMaximum, isValueOutOfRange } from '../utils';
 
