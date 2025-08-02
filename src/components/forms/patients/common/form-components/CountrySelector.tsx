@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FlagIcon } from './FlagIcon';
-import { Icon, Icons } from './icons';
+import { Icon, Icons } from '@/components/icons';
 
 interface CountrySelectorProps {
   value: string;

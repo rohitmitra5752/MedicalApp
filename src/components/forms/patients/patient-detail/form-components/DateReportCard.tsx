@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Icon, Icons } from './icons';
+import { Icon, Icons } from '@/components';
 
 interface DateReportCardProps {
   date: string;

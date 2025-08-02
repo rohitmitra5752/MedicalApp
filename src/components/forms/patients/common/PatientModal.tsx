@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal, CountrySelector, SexSelector, ToggleSwitch } from '@/components';
+import { Modal, ToggleSwitch } from '@/components';
+import { CountrySelector, SexSelector } from './form-components';
 import { Patient, PatientFormData } from './types';
 import { 
   savePatient,

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
-import { ToggleSwitch } from '../ToggleSwitch';
+import { ToggleSwitch } from '../shared';
 import { Icon, Icons } from '../icons';
 
 interface PrescriptionModalProps {

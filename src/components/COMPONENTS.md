@@ -283,52 +283,6 @@ interface ReportFormProps {
 - Form submission with validation
 - Existing report data loading for edit mode
 
-### 7. CountrySelector
-**File:** `CountrySelector.tsx`
-
-Dropdown component for selecting country codes for phone numbers.
-
-#### Props
-```typescript
-interface CountrySelectorProps {
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-}
-```
-
-#### Features
-- Pre-configured country codes with flags
-- Flag icons using `FlagIcon` component
-- Search/filter functionality
-- Click outside to close
-- Tooltip with country names
-- Responsive design
-
-#### Supported Countries
-Includes 20+ major countries with their flags and country codes.
-
-### 8. SexSelector (GenderSelector)
-**File:** `SexSelector.tsx` / `GenderSelector.tsx`
-
-Visual selector for male/female gender selection.
-
-#### Props
-```typescript
-interface SexSelectorProps {
-  value: 'male' | 'female' | '';
-  onChange: (sex: 'male' | 'female') => void;
-  className?: string;
-}
-```
-
-#### Features
-- Visual icons for male/female
-- Color-coded selection (blue/pink)
-- Grid layout
-- Selection indicators
-- Accessible buttons
-
 ---
 
 ## Admin Form Components
@@ -400,7 +354,7 @@ interface ParameterManagementProps {
 
 ## Display Components
 
-### 9. DateReportCard
+### 8. DateReportCard
 **File:** `DateReportCard.tsx`
 
 Card component displaying medical reports for a specific date.
@@ -432,81 +386,11 @@ interface DateReportCardProps {
 - Category-based parameter filtering
 - Date formatting
 
-### 10. ParameterChart
-**File:** `ParameterChart.tsx`
-
-Interactive chart component for visualizing medical parameter trends over time.
-
-#### Props
-```typescript
-interface ParameterChartProps {
-  reports: ReportWithCategory[];
-}
-```
-
-#### Features
-- Interactive line chart with Chart.js/react-chartjs-2
-- Smart parameter selection (abnormal parameters prioritized)
-- Color-coded data points (blue=normal, red=abnormal)
-- Normal range reference lines (green dashed)
-- Parameter dropdown with abnormal indicators (⚠️)
-- Responsive design with fixed aspect ratio
-- Dark mode support
-- Detailed tooltips with normal/abnormal status
-- Parameter information panel showing:
-  - Normal range values
-  - Total data points
-  - Count of abnormal values
-- Visual legend explaining colors and symbols
-- Empty state with informative message
-
-#### Key Functions
-- `parameterOptions` - Generates sorted parameter list with abnormal flags
-- `chartData` - Processes reports into Chart.js format
-- `chartOptions` - Configures chart appearance and interactions
-- Smart default selection (first abnormal parameter or first available)
-
-#### Dependencies
-- `chart.js` - Core charting library
-- `react-chartjs-2` - React wrapper for Chart.js
-- Registered Chart.js components: CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend
-
-#### Usage
-```tsx
-<ParameterChart reports={patientReports} />
-```
-
-#### Visual Elements
-- **Blue dots**: Normal parameter values
-- **Red dots**: Abnormal parameter values (outside normal range)
-- **Green dashed lines**: Normal minimum/maximum reference lines
-- **Parameter selector**: Dropdown with units and abnormal warnings
-- **Info panel**: Shows range, data count, and abnormal count
-
-### 11. FlagIcon
-**File:** `FlagIcon.tsx`
-
-Component for displaying country flag icons.
-
-#### Props
-```typescript
-interface FlagIconProps {
-  countryCode: string;
-  className?: string; // Default: "inline-block mr-2"
-}
-```
-
-#### Features
-- Uses flagcdn.com for flag images
-- Error handling with fallback
-- Consistent sizing (16x12)
-- Next.js Image optimization
-
 ---
 
 ## Navigation Components
 
-### 12. BackButton
+### 9. BackButton
 **File:** `BackButton.tsx`
 
 Reusable navigation component for consistent "Back to *" functionality across the application.
@@ -551,7 +435,7 @@ interface BackButtonProps {
 
 ## UI Components
 
-### 13. ToggleSwitch
+### 10. ToggleSwitch
 **File:** `ToggleSwitch.tsx`
 
 Customizable toggle switch component.
@@ -673,30 +557,14 @@ function PatientActions() {
 
 ### Form with Selectors
 ```tsx
-import { SexSelector, CountrySelector, ToggleSwitch, ParameterChart } from '@/components';
+import { ToggleSwitch } from '@/components';
 
 function PatientForm() {
-  const [gender, setGender] = useState<'male' | 'female' | ''>('');
-  const [countryCode, setCountryCode] = useState('+91');
   const [isActive, setIsActive] = useState(false);
-  const [reports, setReports] = useState<ReportWithCategory[]>([]);
 
   return (
     <form>
       <div className="space-y-6">
-        <div>
-          <label>Gender:</label>
-          <SexSelector value={gender} onChange={setGender} />
-        </div>
-
-        <div>
-          <label>Country Code:</label>
-          <CountrySelector 
-            value={countryCode} 
-            onChange={setCountryCode} 
-          />
-        </div>
-
         <div>
           <label>Active Status:</label>
           <ToggleSwitch 
@@ -708,24 +576,6 @@ function PatientForm() {
         </div>
       </div>
     </form>
-  );
-}
-```
-
-### Medical Parameter Chart
-```tsx
-import { ParameterChart } from '@/components';
-
-function PatientDashboard({ patientReports }: { patientReports: ReportWithCategory[] }) {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Medical History</h2>
-      
-      {/* Interactive parameter chart */}
-      <ParameterChart reports={patientReports} />
-      
-      {/* Individual report sections would follow */}
-    </div>
   );
 }
 ```
@@ -747,7 +597,6 @@ function PatientDashboard({ patientReports }: { patientReports: ReportWithCatego
 - **Next.js 15** - App Router and Image optimization
 - **Tailwind CSS** - Styling framework
 - **@dnd-kit** - Drag and drop functionality (SortableParameterList only)
-- **Chart.js & react-chartjs-2** - Interactive charts (ParameterChart only)
 - **Custom hooks** - Focus management and modal state
 
 ---

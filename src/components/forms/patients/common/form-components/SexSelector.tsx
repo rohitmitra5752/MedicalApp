@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Icons } from './icons';
+import { Icon, Icons } from '@/components/icons';
 
 interface SexSelectorProps {
   value: 'male' | 'female' | '';
