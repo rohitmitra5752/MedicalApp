@@ -5,41 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertModal, BackButton, Icon, Icons } from '../../';
 import { formatDate } from '@/lib/utils';
-
-interface Patient {
-  id: number;
-  name: string;
-  phone_number: string;
-  medical_id_number: string;
-  gender: 'male' | 'female';
-  created_at: string;
-}
-
-interface Parameter {
-  id: number;
-  parameter_name: string;
-  minimum_male: number;
-  maximum_male: number;
-  minimum_female: number;
-  maximum_female: number;
-  unit: string;
-  description: string;
-  category_id: number;
-  sort_order: number;
-  created_at: string;
-}
-
-interface ParameterCategory {
-  id: number;
-  category_name: string;
-  created_at: string;
-}
-
-interface ReportFormProps {
-  patientId: string;
-  editDate?: string;
-  mode: 'add' | 'edit';
-}
+import type { Patient, Parameter, ParameterCategory, ReportFormProps } from './types';
+import {
+  fetchPatientData,
+  fetchParametersData,
+  fetchCategoriesData,
+  fetchExistingReports,
+  processReportSubmission
+} from './utils';
+import { ParameterInputCard } from './form-components';
 
 export default function ReportForm({ patientId, editDate, mode }: ReportFormProps) {
   const router = useRouter();
@@ -52,17 +26,6 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
   
   const [reportDate, setReportDate] = useState(editDate || new Date().toISOString().split('T')[0]);
   const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
-
-  // Helper functions to get sex-specific ranges
-  const getParameterMinimum = (parameter: Parameter) => {
-    if (!patient) return 0;
-    return patient.gender === 'male' ? parameter.minimum_male : parameter.minimum_female;
-  };
-
-  const getParameterMaximum = (parameter: Parameter) => {
-    if (!patient) return 0;
-    return patient.gender === 'male' ? parameter.maximum_male : parameter.maximum_female;
-  };
   const [existingReportIds, setExistingReportIds] = useState<Record<number, number>>({});
 
   // Error modal state
@@ -72,16 +35,10 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [patientRes, parametersRes, categoriesRes] = await Promise.all([
-        fetch(`/api/patients/${patientId}`),
-        fetch('/api/parameters'),
-        fetch('/api/parameter-categories')
-      ]);
-
       const [patientData, parametersData, categoriesData] = await Promise.all([
-        patientRes.json(),
-        parametersRes.json(),
-        categoriesRes.json()
+        fetchPatientData(patientId),
+        fetchParametersData(),
+        fetchCategoriesData()
       ]);
 
       if (patientData.success) {
@@ -96,25 +53,9 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
 
       // If editing an existing date, fetch existing reports
       if (mode === 'edit' && editDate) {
-        const reportsRes = await fetch(`/api/patients/${patientId}/reports`);
-        const reportsData = await reportsRes.json();
-        
-        if (reportsData.success) {
-          const dateReports = reportsData.reports.filter((report: { report_date: string }) => 
-            report.report_date === editDate
-          );
-          
-          const existingValues: Record<number, string> = {};
-          const existingIds: Record<number, number> = {};
-          
-          dateReports.forEach((report: { parameter_id: number; value: number; id: number }) => {
-            existingValues[report.parameter_id] = report.value.toString();
-            existingIds[report.parameter_id] = report.id;
-          });
-          
-          setParameterValues(existingValues);
-          setExistingReportIds(existingIds);
-        }
+        const { existingValues, existingIds } = await fetchExistingReports(patientId, editDate);
+        setParameterValues(existingValues);
+        setExistingReportIds(existingIds);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -138,82 +79,21 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!reportDate) {
-      setErrorMessage('Please select a report date');
-      setShowErrorModal(true);
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const filledValues = Object.entries(parameterValues).filter(([_key, value]) => value.trim() !== '');
-    
-    if (filledValues.length === 0) {
-      setErrorMessage('Please enter at least one parameter value');
-      setShowErrorModal(true);
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      // If editing existing date, first delete all existing reports for that date
-      if (mode === 'edit' && editDate && Object.keys(existingReportIds).length > 0) {
-        await fetch(`/api/patients/${patientId}/reports/date/${editDate}`, {
-          method: 'DELETE',
-        });
-      }
-
-      // Create all the new/updated reports
-      const reportPromises = filledValues.map(([parameterId, value]) => 
-        fetch('/api/reports', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            patient_id: parseInt(patientId),
-            parameter_id: parseInt(parameterId),
-            value: parseFloat(value),
-            report_date: reportDate,
-          }),
-        })
+      await processReportSubmission(
+        patientId,
+        reportDate,
+        parameterValues,
+        mode,
+        editDate,
+        existingReportIds
       );
-
-      const results = await Promise.all(reportPromises);
-      
-      // Check for any failed requests and extract error messages
-      const failedResponses = [];
-      for (let i = 0; i < results.length; i++) {
-        if (!results[i].ok) {
-          const errorData = await results[i].json();
-          failedResponses.push({
-            parameterId: filledValues[i][0],
-            error: errorData.error || 'Unknown error'
-          });
-        }
-      }
-      
-      if (failedResponses.length > 0) {
-        // Check if any errors are about duplicate reports
-        const duplicateErrors = failedResponses.filter(f => 
-          f.error.includes('A report for this date already exists')
-        );
-        
-        if (duplicateErrors.length > 0) {
-          setErrorMessage(`A report for the date ${reportDate} already exists. Please choose a different date or edit the existing report.`);
-          setShowErrorModal(true);
-        } else {
-          setErrorMessage(`Failed to save ${failedResponses.length} report(s): ${failedResponses.map(f => f.error).join(', ')}`);
-          setShowErrorModal(true);
-        }
-        return;
-      }
-
       router.push(`/patients/${patientId}`);
     } catch (error) {
       console.error('Error saving reports:', error);
-      setErrorMessage('Failed to save reports. Please try again.');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to save reports. Please try again.');
       setShowErrorModal(true);
     } finally {
       setIsSubmitting(false);
@@ -308,58 +188,14 @@ export default function ReportForm({ patientId, editDate, mode }: ReportFormProp
                         {categoryParameters.map((parameter) => {
                           const hasExistingValue = existingReportIds[parameter.id];
                           return (
-                            <div key={parameter.id}>
-                              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                                {parameter.parameter_name}
-                                {hasExistingValue && (
-                                  <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                                    existing
-                                  </span>
-                                )}
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="number"
-                                  step="any"
-                                  value={parameterValues[parameter.id] || ''}
-                                  onChange={(e) => handleParameterValueChange(parameter.id, e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-16"
-                                  placeholder={`${getParameterMinimum(parameter)}-${getParameterMaximum(parameter)}`}
-                                />
-                                <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">
-                                  {parameter.unit}
-                                </span>
-                              </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Normal range: {getParameterMinimum(parameter)} - {getParameterMaximum(parameter)} {parameter.unit}
-                              </p>
-                              
-                              {/* Visual indicator for out-of-range values */}
-                              {parameterValues[parameter.id] && (
-                                (() => {
-                                  const value = parseFloat(parameterValues[parameter.id]);
-                                  if (isNaN(value)) return null;
-                                  
-                                  const isOutOfRange = value < getParameterMinimum(parameter) || value > getParameterMaximum(parameter);
-                                  
-                                  if (isOutOfRange) {
-                                    return (
-                                      <div className="flex items-center text-xs text-amber-600 dark:text-amber-400 mt-1">
-                                        <Icon name={Icons.WARNING_TRIANGLE} size="xs" className="mr-1" />
-                                        Value outside normal range
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  return (
-                                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 mt-1">
-                                      <Icon name={Icons.SUCCESS_CIRCLE} size="xs" className="mr-1" />
-                                      Within normal range
-                                    </div>
-                                  );
-                                })()
-                              )}
-                            </div>
+                            <ParameterInputCard
+                              key={parameter.id}
+                              parameter={parameter}
+                              patient={patient}
+                              value={parameterValues[parameter.id] || ''}
+                              hasExistingValue={!!hasExistingValue}
+                              onChange={handleParameterValueChange}
+                            />
                           );
                         })}
                       </div>
