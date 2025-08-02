@@ -49,6 +49,18 @@ export interface ImportResults {
   errors: string[];
 }
 
+export interface ExportData {
+  medicines: Medicine[];
+  exportDate: string;
+  version: string;
+}
+
+export interface ImportData {
+  medicines: Medicine[];
+  exportDate?: string;
+  version?: string;
+}
+
 export interface ActionListProps {
   onImportClick: () => void;
   onAddMedicine: () => void;

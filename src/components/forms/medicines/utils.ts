@@ -1,5 +1,5 @@
 import { Medicine, MedicineWithInventory } from '@/lib/db';
-import { MedicineFormData, SheetFormData, SheetData, ImportResults } from './types';
+import { MedicineFormData, SheetFormData, SheetData, ImportResults, ImportData, ExportData } from './types';
 
 // API utility functions
 export const fetchMedicines = async (search?: string) => {
@@ -68,12 +68,12 @@ export const exportMedicines = async () => {
   return result.data;
 };
 
-export const parseImportFile = async (file: File): Promise<any> => {
+export const parseImportFile = async (file: File): Promise<ImportData> => {
   const fileContent = await file.text();
   return JSON.parse(fileContent);
 };
 
-export const importMedicines = async (importData: any, skipDuplicates: boolean): Promise<ImportResults> => {
+export const importMedicines = async (importData: ImportData, skipDuplicates: boolean): Promise<ImportResults> => {
   const response = await fetch('/api/medicines/import-export', {
     method: 'POST',
     headers: {
@@ -143,7 +143,7 @@ export const submitSheets = async (selectedMedicine: MedicineWithInventory, shee
 };
 
 // Utility functions
-export const downloadExportFile = (data: any) => {
+export const downloadExportFile = (data: ExportData) => {
   const dataStr = JSON.stringify(data, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(dataBlob);

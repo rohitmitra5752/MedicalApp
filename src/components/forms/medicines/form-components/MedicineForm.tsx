@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Icon, Icons } from '@/components';
-import { Medicine } from '@/lib/db';
 import { submitMedicine, getInitialMedicineFormData, medicineToFormData } from '../utils';
 import { MedicineFormData, MedicineFormProps } from '../types';
 
