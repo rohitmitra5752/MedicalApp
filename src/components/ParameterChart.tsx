@@ -13,7 +13,7 @@ import {
   ChartOptions,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Icon, Icons } from './Icon';
+import { Icon, Icons } from './icons';
 import { formatDate } from '@/lib/utils';
 
 ChartJS.register(

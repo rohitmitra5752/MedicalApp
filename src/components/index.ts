@@ -1,6 +1,6 @@
 // UI Components
-export { Icon, Icons } from './Icon';
-export type { IconName } from './Icon';
+export { Icon, Icons } from './icons';
+export type { IconName } from './icons';
 
 // Modal Components (from modals subfolder)
 export { Modal, AlertModal, ConfirmationModal, PromptModal, PrescriptionModal } from './modals';

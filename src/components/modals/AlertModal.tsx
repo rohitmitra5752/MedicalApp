@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from './Modal';
-import { Icon, Icons } from '../Icon';
+import { Icon, Icons } from '../icons';
 
 interface AlertModalProps {
   isOpen: boolean;

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { ToggleSwitch } from '../ToggleSwitch';
-import { Icon, Icons } from '../Icon';
+import { Icon, Icons } from '../icons';
 
 interface PrescriptionModalProps {
   isOpen: boolean;

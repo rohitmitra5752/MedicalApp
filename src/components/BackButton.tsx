@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Icon, Icons } from './Icon';
+import { Icon, Icons } from './icons';
 
 interface BackButtonProps {
   href: string;

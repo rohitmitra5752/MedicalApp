@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Icon, Icons } from './Icon';
+import { Icon, Icons } from './icons';
 
 interface Parameter {
   id: number;
