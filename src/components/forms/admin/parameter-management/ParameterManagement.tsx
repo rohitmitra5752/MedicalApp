@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal, ConfirmationModal, Icon, Icons } from '@/components';
+import { ConfirmationModal, Icon, Icons } from '@/components';
 import { 
   ParameterCategory, 
   Parameter, 
