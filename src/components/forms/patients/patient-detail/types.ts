@@ -57,3 +57,38 @@ export interface PatientForm {
 export interface PatientDetailContentProps {
   patientId: string;
 }
+
+// Form component interfaces
+export interface DateReportCardProps {
+  date: string;
+  categories: string[];
+  getParametersForDateAndCategory: (date: string, categoryName: string) => Array<{
+    parameter_name: string;
+    value: number;
+    unit: string;
+    minimum: number;
+    maximum: number;
+    isOutOfRange: boolean;
+  }>;
+  formatDate: (date: string) => string;
+  patientId: string;
+  onEdit: (date: string) => void;
+  onDelete: (date: string) => void;
+}
+
+export interface MedicineInstructionsProps {
+  patientId: number;
+}
+
+export interface ParameterChartProps {
+  reports: ReportWithCategory[];
+}
+
+export interface ParameterOption {
+  value: string;
+  label: string;
+  unit: string;
+  minimum: number;
+  maximum: number;
+  isAbnormal: boolean;
+}

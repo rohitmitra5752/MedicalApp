@@ -2,23 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Icon, Icons } from '@/components';
-
-interface DateReportCardProps {
-  date: string;
-  categories: string[];
-  getParametersForDateAndCategory: (date: string, categoryName: string) => Array<{
-    parameter_name: string;
-    value: number;
-    unit: string;
-    minimum: number;
-    maximum: number;
-    isOutOfRange: boolean;
-  }>;
-  formatDate: (date: string) => string;
-  patientId: string;
-  onEdit: (date: string) => void;
-  onDelete: (date: string) => void;
-}
+import { DateReportCardProps } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function DateReportCard({ date, categories, getParametersForDateAndCategory, formatDate, patientId: _patientId, onEdit, onDelete }: DateReportCardProps) {

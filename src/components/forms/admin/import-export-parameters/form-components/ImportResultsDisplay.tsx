@@ -1,8 +1,4 @@
-import { ImportResults } from '../types';
-
-interface ImportResultsDisplayProps {
-  importResults: ImportResults;
-}
+import { ImportResultsDisplayProps } from '../types';
 
 export default function ImportResultsDisplay({ importResults }: ImportResultsDisplayProps) {
   return (

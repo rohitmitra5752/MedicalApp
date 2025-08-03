@@ -1,16 +1,5 @@
 import { Modal, Icon, Icons } from '@/components';
-import { ParameterForm, Parameter } from '../types';
-
-interface ParameterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
-  parameterForm: ParameterForm;
-  setParameterForm: (form: ParameterForm) => void;
-  editingParameter: Parameter | null;
-  isSubmitting: boolean;
-  error: string;
-}
+import { ParameterModalProps } from '../types';
 
 export default function ParameterModal({
   isOpen,

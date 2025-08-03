@@ -3,10 +3,7 @@
 import Link from 'next/link';
 import { Icon, Icons } from '@/components';
 import { getMedicinesUrl } from '../utils';
-
-interface MedicineInstructionsProps {
-  patientId: number;
-}
+import { MedicineInstructionsProps } from '../types';
 
 export default function MedicineInstructions({ patientId }: MedicineInstructionsProps) {
   return (

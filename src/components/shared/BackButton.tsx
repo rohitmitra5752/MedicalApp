@@ -2,12 +2,7 @@
 
 import Link from 'next/link';
 import { Icon, Icons } from '../icons';
-
-interface BackButtonProps {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-}
+import { BackButtonProps } from './types';
 
 export function BackButton({ href, children, className = "" }: BackButtonProps) {
   const defaultClasses = "inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4";

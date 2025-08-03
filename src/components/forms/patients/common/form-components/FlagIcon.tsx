@@ -1,9 +1,5 @@
 import Image from 'next/image';
-
-interface FlagIconProps {
-  countryCode: string;
-  className?: string;
-}
+import { FlagIconProps } from '../types';
 
 export const FlagIcon = ({ countryCode, className = "inline-block mr-2" }: FlagIconProps) => {
   return (

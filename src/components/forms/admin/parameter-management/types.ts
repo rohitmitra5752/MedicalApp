@@ -41,3 +41,25 @@ export interface ParameterForm {
   category_id: number;
   sort_order: string;
 }
+
+export interface CategoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  categoryForm: CategoryForm;
+  setCategoryForm: (form: CategoryForm) => void;
+  editingCategory: ParameterCategory | null;
+  isSubmitting: boolean;
+  error: string;
+}
+
+export interface ParameterModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  parameterForm: ParameterForm;
+  setParameterForm: (form: ParameterForm) => void;
+  editingParameter: Parameter | null;
+  isSubmitting: boolean;
+  error: string;
+}

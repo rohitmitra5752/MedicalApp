@@ -1,11 +1,6 @@
 import React from 'react';
 import { Icon, Icons } from '@/components/icons';
-
-interface SexSelectorProps {
-  value: 'male' | 'female' | '';
-  onChange: (sex: 'male' | 'female') => void;
-  className?: string;
-}
+import { SexSelectorProps } from '../types';
 
 export function SexSelector({ value, onChange, className = '' }: SexSelectorProps) {
   return (

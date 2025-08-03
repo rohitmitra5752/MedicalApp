@@ -1,16 +1,5 @@
 import { Modal, Icon, Icons } from '@/components';
-import { CategoryForm, ParameterCategory } from '../types';
-
-interface CategoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
-  categoryForm: CategoryForm;
-  setCategoryForm: (form: CategoryForm) => void;
-  editingCategory: ParameterCategory | null;
-  isSubmitting: boolean;
-  error: string;
-}
+import { CategoryModalProps } from '../types';
 
 export default function CategoryModal({
   isOpen,

@@ -15,6 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { Icon, Icons } from '@/components';
 import { formatDate } from '@/lib/utils';
+import { ParameterChartProps, ParameterOption } from '../types';
 
 ChartJS.register(
   CategoryScale,
@@ -25,37 +26,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-interface ReportWithCategory {
-  id: number;
-  patient_id: number;
-  parameter_id: number;
-  value: number;
-  report_date: string;
-  created_at: string;
-  patient_name: string;
-  parameter_name: string;
-  unit: string;
-  parameter_minimum: number;
-  parameter_maximum: number;
-  parameter_description: string;
-  category_id: number;
-  category_name: string;
-  parameter_sort_order: number;
-}
-
-interface ParameterChartProps {
-  reports: ReportWithCategory[];
-}
-
-interface ParameterOption {
-  value: string;
-  label: string;
-  unit: string;
-  minimum: number;
-  maximum: number;
-  isAbnormal: boolean;
-}
 
 export default function ParameterChart({ reports }: ParameterChartProps) {
   const [selectedParameter, setSelectedParameter] = useState<string>('');

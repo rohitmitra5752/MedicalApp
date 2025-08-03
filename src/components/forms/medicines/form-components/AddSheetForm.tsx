@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Icon, Icons } from '@/components';
-import { MedicineWithInventory } from '@/lib/db';
 import { submitSheets, getInitialSheetFormData, addSheetRow, removeSheetRow, updateSheetRow } from '../utils';
-import { SheetFormData } from '../types';
-
-interface AddSheetFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedMedicine: MedicineWithInventory | null;
-  onSuccess: () => void;
-  onError: (error: string) => void;
-}
+import { SheetFormData, AddSheetFormProps } from '../types';
 
 export function AddSheetForm({
   isOpen,

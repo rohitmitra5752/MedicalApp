@@ -2,13 +2,7 @@
 
 import Link from 'next/link';
 import { Icon, Icons } from '@/components';
-import { Patient } from '../types';
-
-interface PatientCardProps {
-  patient: Patient;
-  onEdit: (patient: Patient) => void;
-  onDelete: (patient: Patient) => void;
-}
+import { PatientCardProps } from '../types';
 
 export default function PatientCard({ patient, onEdit, onDelete }: PatientCardProps) {
   return (

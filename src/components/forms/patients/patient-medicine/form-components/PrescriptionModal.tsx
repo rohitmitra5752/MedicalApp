@@ -1,32 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal } from './Modal';
-import { ToggleSwitch } from '../shared';
-import { Icon, Icons } from '../icons';
-
-interface PrescriptionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: PrescriptionFormData) => void;
-  patientName: string;
-  prescriptionData?: Prescription | null;
-  mode: 'create' | 'edit';
-}
-
-interface Prescription {
-  id: number;
-  patient_id: number;
-  prescription_type: 'daily_monitoring' | 'weekly_refill';
-  valid_till: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface PrescriptionFormData {
-  prescription_type: 'daily_monitoring' | 'weekly_refill';
-  valid_till: string;
-}
+import { Modal } from '@/components/modals';
+import { ToggleSwitch } from '@/components/shared';
+import { Icon, Icons } from '@/components/icons';
+import type { PrescriptionFormData, PrescriptionModalProps } from '../types';
 
 export function PrescriptionModal({ 
   isOpen, 
@@ -42,10 +20,12 @@ export function PrescriptionModal({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Reset form when modal opens or prescription data changes
   useEffect(() => {
     if (isOpen) {
+      setError(null); // Clear any previous errors
       if (mode === 'edit' && prescriptionData) {
         setFormData({
           prescription_type: prescriptionData.prescription_type,
@@ -63,12 +43,15 @@ export function PrescriptionModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     try {
       await onSubmit(formData);
+      // Only close if submission was successful
       onClose();
     } catch (error) {
       console.error('Error submitting prescription:', error);
+      setError(error instanceof Error ? error.message : 'Failed to submit prescription');
     } finally {
       setIsSubmitting(false);
     }
@@ -88,6 +71,13 @@ export function PrescriptionModal({
     }));
   };
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setError(null);
+      onClose();
+    }
+  };
+
   const getTypeLabel = (type: string) => {
     return type === 'daily_monitoring' ? 'Daily Consumption' : 'Weekly Refill';
   };
@@ -95,11 +85,20 @@ export function PrescriptionModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={mode === 'create' ? 'Create New Prescription' : 'Edit Prescription'}
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+            <div className="flex items-center">
+              <Icon name={Icons.ERROR} size="sm" className="text-red-500 mr-2" />
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Patient Name (Display Only) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -184,7 +183,7 @@ export function PrescriptionModal({
         <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isSubmitting}
             className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 
                      hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium 

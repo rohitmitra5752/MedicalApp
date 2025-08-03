@@ -3,19 +3,12 @@
 import { useState, useEffect } from 'react';
 import { Modal, ToggleSwitch } from '@/components';
 import { CountrySelector, SexSelector } from './form-components';
-import { Patient, PatientFormData } from './types';
+import { PatientFormData, PatientModalProps } from './types';
 import { 
   savePatient,
   createEmptyPatientForm,
   createPatientFormFromPatient
 } from './utils';
-
-interface PatientModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  editingPatient: Patient | null;
-  onSave: () => void; // Callback when save is successful
-}
 
 export default function PatientModal({
   isOpen,

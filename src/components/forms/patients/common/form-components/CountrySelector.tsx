@@ -1,12 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FlagIcon } from './FlagIcon';
 import { Icon, Icons } from '@/components/icons';
-
-interface CountrySelectorProps {
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-}
+import { CountrySelectorProps } from '../types';
 
 // Common country codes
 const countryCodes = [

@@ -6,6 +6,10 @@ export interface ImportResults {
   errors: string[];
 }
 
+export interface ImportResultsDisplayProps {
+  importResults: ImportResults;
+}
+
 export interface ImportExportParametersProps {
   onDataUpdate: () => void;
 }

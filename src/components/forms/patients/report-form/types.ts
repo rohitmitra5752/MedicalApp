@@ -32,3 +32,11 @@ export interface ReportFormProps {
   editDate?: string;
   mode: 'add' | 'edit';
 }
+
+export interface ParameterInputCardProps {
+  parameter: Parameter;
+  patient: Patient | null;
+  value: string;
+  hasExistingValue: boolean;
+  onChange: (parameterId: number, value: string) => void;
+}

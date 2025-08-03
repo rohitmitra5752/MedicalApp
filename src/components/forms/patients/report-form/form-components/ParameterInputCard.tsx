@@ -1,14 +1,6 @@
 import { Icon, Icons } from '@/components';
-import type { Patient, Parameter } from '../types';
+import type { ParameterInputCardProps } from '../types';
 import { getParameterMinimum, getParameterMaximum, isValueOutOfRange } from '../utils';
-
-interface ParameterInputCardProps {
-  parameter: Parameter;
-  patient: Patient | null;
-  value: string;
-  hasExistingValue: boolean;
-  onChange: (parameterId: number, value: string) => void;
-}
 
 export default function ParameterInputCard({
   parameter,
