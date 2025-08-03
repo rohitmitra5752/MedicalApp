@@ -70,6 +70,33 @@ export const addMedicineToPresciption = async (
   }
 };
 
+export const updateMedicineInPrescription = async (
+  patientId: string,
+  prescriptionId: string,
+  prescriptionMedicineId: number,
+  medicineData: {
+    morning_count: number;
+    afternoon_count: number;
+    evening_count: number;
+    recurrence_type: 'daily' | 'interval';
+    recurrence_interval: number;
+  }
+): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/patients/${patientId}/prescriptions/${prescriptionId}/medicines/${prescriptionMedicineId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(medicineData)
+    });
+
+    const responseData = await response.json();
+    return responseData.success;
+  } catch (error) {
+    console.error('Error updating medicine in prescription:', error);
+    return false;
+  }
+};
+
 export const deleteMedicineFromPrescription = async (
   patientId: string,
   prescriptionId: string,
@@ -120,6 +147,33 @@ export const getInitialAddMedicineForm = (): AddMedicineForm => ({
   afternoon: 0,
   evening: 0
 });
+
+export const convertTableRowToEditForm = (
+  row: MedicineTableRow,
+  prescriptionMedicines: PrescriptionMedicine[]
+): AddMedicineForm => {
+  // Find the original prescription medicine to get detailed information
+  const prescriptionMedicine = prescriptionMedicines.find(
+    pm => pm.medicine_id === row.medicine_id
+  );
+
+  // Parse recurrence string to determine type and interval
+  const recurrenceType = row.recurrence === 'Daily' ? 'daily' : 'interval';
+  const recurrenceInterval = row.recurrence === 'Daily' ? 1 : parseInt(row.recurrence.replace('Every ', '').replace(' days', '')) || 1;
+
+  return {
+    medicine_id: row.medicine_id,
+    medicine_name: row.medicine_name,
+    medicine_strength: row.medicine_strength || '',
+    recurrence_type: recurrenceType as 'daily' | 'interval',
+    recurrence_interval: recurrenceInterval,
+    morning: row.morning,
+    afternoon: row.afternoon,
+    evening: row.evening,
+    prescription_medicine_id: row.prescription_medicine_id,
+    isEditMode: true
+  };
+};
 
 // Form Handler Functions
 export const handleMedicineSelection = (
@@ -198,7 +252,6 @@ export const checkMedicineAlreadyExists = (
   });
 };
 
-// Business Logic Functions
 export const performAddMedicine = async (
   form: AddMedicineForm,
   availableMedicines: Medicine[],
@@ -206,6 +259,11 @@ export const performAddMedicine = async (
   patientId: string,
   prescriptionId: string
 ): Promise<{ success: boolean; message: string; selectedMedicine?: Medicine }> => {
+  // Check if this is edit mode
+  if (form.isEditMode && form.prescription_medicine_id) {
+    return performEditMedicine(form, availableMedicines, patientId, prescriptionId);
+  }
+
   // Validate form
   const validationError = validateAddMedicineForm(form);
   if (validationError) {
@@ -237,6 +295,44 @@ export const performAddMedicine = async (
     };
   } else {
     return { success: false, message: 'Failed to add medicine to prescription' };
+  }
+};
+
+export const performEditMedicine = async (
+  form: AddMedicineForm,
+  availableMedicines: Medicine[],
+  patientId: string,
+  prescriptionId: string
+): Promise<{ success: boolean; message: string; selectedMedicine?: Medicine }> => {
+  // Validate form
+  const validationError = validateAddMedicineForm(form);
+  if (validationError) {
+    return { success: false, message: validationError };
+  }
+
+  if (!form.prescription_medicine_id) {
+    return { success: false, message: 'Invalid prescription medicine ID' };
+  }
+
+  // Update medicine in prescription
+  const success = await updateMedicineInPrescription(patientId, prescriptionId, form.prescription_medicine_id, {
+    morning_count: form.morning,
+    afternoon_count: form.afternoon,
+    evening_count: form.evening,
+    recurrence_type: form.recurrence_type,
+    recurrence_interval: form.recurrence_interval
+  });
+
+  const selectedMedicine = availableMedicines.find(m => m.id === form.medicine_id);
+
+  if (success) {
+    return { 
+      success: true, 
+      message: `Successfully updated ${selectedMedicine?.name} in prescription`,
+      selectedMedicine
+    };
+  } else {
+    return { success: false, message: 'Failed to update medicine in prescription' };
   }
 };
 

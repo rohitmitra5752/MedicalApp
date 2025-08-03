@@ -57,6 +57,8 @@ export interface AddMedicineForm {
   morning: number;
   afternoon: number;
   evening: number;
+  prescription_medicine_id?: number; // For edit mode
+  isEditMode?: boolean;
 }
 
 export interface PatientPrescriptionProps {
@@ -68,5 +70,6 @@ export interface MedicineTableProps {
   tableData: MedicineTableRow[];
   onDeleteMedicine: (medicineId: number, medicineName: string) => void;
   onAddMedicine: () => void;
+  onEditMedicine?: (medicineData: MedicineTableRow) => void;
   showAddButton?: boolean;
 }

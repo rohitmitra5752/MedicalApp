@@ -16,7 +16,8 @@ import {
   fetchAvailableMedicines,
   processPrescriptionMedicines,
   performAddMedicine,
-  performDeleteMedicine
+  performDeleteMedicine,
+  convertTableRowToEditForm
 } from './utils';
 import { AddMedicineForm, MedicineTable } from './form-components';
 
@@ -29,6 +30,7 @@ export function PatientPrescriptionContent({ patientId, prescriptionId }: Patien
   
   // Add medicine form state
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editData, setEditData] = useState<AddMedicineFormData | null>(null);
   
   // Delete confirmation
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -76,7 +78,7 @@ export function PatientPrescriptionContent({ patientId, prescriptionId }: Patien
     setTableData(processedData);
   }, [prescriptionMedicines]);
 
-  const handleAddMedicine = async (form: AddMedicineFormData) => {
+  const handleSubmitMedicine = async (form: AddMedicineFormData) => {
     const result = await performAddMedicine(
       form,
       availableMedicines,
@@ -91,12 +93,29 @@ export function PatientPrescriptionContent({ patientId, prescriptionId }: Patien
       setPrescriptionMedicines(updatedMedicines);
 
       setShowAddForm(false);
+      setEditData(null);
       
       // Show success message
       console.log(result.message);
     } else {
       alert(result.message);
     }
+  };
+
+  const handleEditMedicine = (medicineData: MedicineTableRow) => {
+    const editFormData = convertTableRowToEditForm(medicineData, prescriptionMedicines);
+    setEditData(editFormData);
+    setShowAddForm(true);
+  };
+
+  const handleAddMedicine = () => {
+    setEditData(null);
+    setShowAddForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowAddForm(false);
+    setEditData(null);
   };
 
   const handleDeleteMedicine = async (medicineId: number) => {
@@ -179,16 +198,18 @@ export function PatientPrescriptionContent({ patientId, prescriptionId }: Patien
         <MedicineTable
           tableData={tableData}
           onDeleteMedicine={handleDeleteConfirmation}
-          onAddMedicine={() => setShowAddForm(true)}
+          onAddMedicine={handleAddMedicine}
+          onEditMedicine={handleEditMedicine}
           showAddButton={!showAddForm}
         />
 
         {/* Add Medicine Form */}
         <AddMedicineForm
           isVisible={showAddForm}
-          onClose={() => setShowAddForm(false)}
-          onSubmit={handleAddMedicine}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmitMedicine}
           availableMedicines={availableMedicines}
+          editData={editData}
         />
       </div>
 

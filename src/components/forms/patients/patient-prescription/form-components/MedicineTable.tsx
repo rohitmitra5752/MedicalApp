@@ -5,6 +5,7 @@ export function MedicineTable({
   tableData, 
   onDeleteMedicine, 
   onAddMedicine, 
+  onEditMedicine,
   showAddButton = true 
 }: MedicineTableProps) {
   return (
@@ -49,13 +50,24 @@ export function MedicineTable({
                   {row.evening || 0}
                 </td>
                 <td className="border border-gray-300 dark:border-gray-600 px-4 py-3 text-center">
-                  <button
-                    onClick={() => onDeleteMedicine(row.medicine_id, row.medicine_name)}
-                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                    title="Remove medicine"
-                  >
-                    <Icon name={Icons.DELETE} size="xs" />
-                  </button>
+                  <div className="flex items-center justify-center space-x-2">
+                    {onEditMedicine && (
+                      <button
+                        onClick={() => onEditMedicine(row)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        title="Edit medicine"
+                      >
+                        <Icon name={Icons.EDIT} size="xs" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onDeleteMedicine(row.medicine_id, row.medicine_name)}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      title="Remove medicine"
+                    >
+                      <Icon name={Icons.DELETE} size="xs" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

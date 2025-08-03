@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { AddMedicineFormProps } from './types';
 import {
   getInitialAddMedicineForm,
@@ -12,8 +12,19 @@ export function AddMedicineForm({
   isVisible, 
   onClose, 
   onSubmit, 
-  availableMedicines}: AddMedicineFormProps) {
+  availableMedicines,
+  editData
+}: AddMedicineFormProps) {
   const [addForm, setAddForm] = useState(getInitialAddMedicineForm());
+
+  // Update form when editData changes
+  useEffect(() => {
+    if (editData) {
+      setAddForm(editData);
+    } else {
+      setAddForm(getInitialAddMedicineForm());
+    }
+  }, [editData]);
 
   const handleSubmit = async () => {
     await onSubmit(addForm);
@@ -27,9 +38,13 @@ export function AddMedicineForm({
 
   if (!isVisible) return null;
 
+  const isEditMode = Boolean(editData);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Add Medicine to Prescription</h3>
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+        {isEditMode ? 'Edit Medicine in Prescription' : 'Add Medicine to Prescription'}
+      </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
@@ -40,6 +55,7 @@ export function AddMedicineForm({
             value={addForm.medicine_id || ''}
             onChange={(e) => setAddForm(handleMedicineSelection(e.target.value, availableMedicines, addForm))}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            disabled={isEditMode}
           >
             <option value="">Select a medicine</option>
             {availableMedicines.map((medicine) => (
@@ -132,7 +148,7 @@ export function AddMedicineForm({
           onClick={handleSubmit}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
-          Add Medicine
+          {isEditMode ? 'Update Medicine' : 'Add Medicine'}
         </button>
       </div>
     </div>

@@ -5,5 +5,6 @@ export interface AddMedicineFormProps {
   onClose: () => void;
   onSubmit: (form: AddMedicineForm) => Promise<void>;
   availableMedicines: Medicine[];
+  editData?: AddMedicineForm | null;
 }
 
