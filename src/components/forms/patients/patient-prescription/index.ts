@@ -1,0 +1,1 @@
+export { PatientPrescriptionContent } from './PatientPrescriptionContent';
