@@ -21,6 +21,22 @@ export interface PrescriptionModalProps {
 export interface PrescriptionCardProps {
   prescription: Prescription;
   patientId: string;
+  patientName: string;
   onEdit: (prescription: Prescription) => void;
   onDelete: (prescription: Prescription) => void;
+}
+
+export interface ImportResults {
+  prescriptionsImported: number;
+  prescriptionsUpdated: number;
+  prescriptionsSkipped: number;
+  medicinesImported: number;
+  medicinesUpdated: number;
+  errors: string[];
+}
+
+export interface PrescriptionImportExportProps {
+  patientId: string;
+  patientName: string;
+  onDataUpdate: () => void;
 }

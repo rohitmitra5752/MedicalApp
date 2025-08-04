@@ -3,14 +3,17 @@
 import Link from 'next/link';
 import { Icon, Icons } from '@/components';
 import type { PrescriptionCardProps } from '../types';
-import { isPrescriptionActive, formatDate, getTypeLabel, getTypeColor } from '../utils';
+import { isPrescriptionActive, formatDate, getTypeLabel, getTypeColor, exportSinglePrescription } from '../utils';
+import { useState } from 'react';
 
 export function PrescriptionCard({
   prescription,
   patientId,
+  patientName,
   onEdit,
   onDelete
 }: PrescriptionCardProps) {
+  const [isExporting, setIsExporting] = useState(false);
   const isActive = isPrescriptionActive(prescription);
 
   const handleEdit = () => {
@@ -20,6 +23,16 @@ export function PrescriptionCard({
   const handleDelete = () => {
     console.log('Delete button clicked for prescription:', prescription.id);
     onDelete(prescription);
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    const result = await exportSinglePrescription(patientId, prescription.id, patientName);
+    if (!result.success) {
+      // You might want to show an error message here
+      console.error('Failed to export prescription:', result.error);
+    }
+    setIsExporting(false);
   };
 
   return (
@@ -78,6 +91,14 @@ export function PrescriptionCard({
             title="Edit prescription details"
           >
             <Icon name={Icons.EDIT} size="xs" />
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded transition-colors disabled:opacity-50"
+            title="Export prescription"
+          >
+            <Icon name={Icons.DOWNLOAD} size="xs" />
           </button>
           <button
             onClick={handleDelete}

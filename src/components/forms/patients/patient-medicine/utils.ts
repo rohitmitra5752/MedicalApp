@@ -132,3 +132,120 @@ export const handlePrescriptionDelete = async (
     throw error;
   }
 };
+
+// Import/Export Functions
+export const exportPrescriptions = async (patientId: string, patientName: string) => {
+  try {
+    const response = await fetch(`/api/patients/${patientId}/prescriptions/import-export`);
+    const result = await response.json();
+    
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+    
+    // Create and download the file
+    const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+      type: 'application/json'
+    });
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.download = `prescriptions_${patientName.replace(/\s+/g, '_')}_${timestamp}.json`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Export error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to export prescriptions' 
+    };
+  }
+};
+
+export const exportSinglePrescription = async (patientId: string, prescriptionId: number, patientName: string) => {
+  try {
+    const response = await fetch(`/api/patients/${patientId}/prescriptions/${prescriptionId}/import-export`);
+    const result = await response.json();
+    
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+    
+    // Create and download the file
+    const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+      type: 'application/json'
+    });
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.download = `prescription_${prescriptionId}_${patientName.replace(/\s+/g, '_')}_${timestamp}.json`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Export error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to export prescription' 
+    };
+  }
+};
+
+export const importPrescriptions = async (
+  patientId: string, 
+  file: File, 
+  overwriteExisting: boolean = false
+) => {
+  try {
+    // Parse the JSON file
+    const fileContent = await file.text();
+    const importData = JSON.parse(fileContent);
+    
+    // Send to API
+    const response = await fetch(`/api/patients/${patientId}/prescriptions/import-export`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: importData,
+        overwriteExisting
+      }),
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+    
+    return { 
+      success: true, 
+      results: result.results 
+    };
+  } catch (error) {
+    console.error('Import error:', error);
+    if (error instanceof SyntaxError) {
+      return { success: false, error: 'Invalid JSON file format' };
+    }
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to import prescriptions' 
+    };
+  }
+};

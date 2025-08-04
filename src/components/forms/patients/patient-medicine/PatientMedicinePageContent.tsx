@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ConfirmationModal, BackButton, Icon, Icons } from '@/components';
-import { PrescriptionModal, PrescriptionCard } from './form-components';
+import { PrescriptionModal, PrescriptionCard, PrescriptionImportExport } from './form-components';
 import type { Patient, Prescription } from '@/lib';
 import type { PrescriptionFormData, PatientMedicinePageContentProps } from './types';
 import { 
@@ -159,13 +159,25 @@ export function PatientMedicinePageContent({ patientId }: PatientMedicinePageCon
                   </div>
                 </div>
               </div>
-              <button
-                onClick={handleCreatePrescription}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
-              >
-                <Icon name={Icons.ADD} size="xs" />
-                <span>Create Prescription</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <PrescriptionImportExport
+                  patientId={patientId}
+                  patientName={patient.name}
+                  onDataUpdate={() => {
+                    // Refresh prescriptions
+                    fetchPatientData(patientId).then(({ prescriptions }) => {
+                      setPrescriptions(prescriptions);
+                    });
+                  }}
+                />
+                <button
+                  onClick={handleCreatePrescription}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <Icon name={Icons.ADD} size="xs" />
+                  <span>Create Prescription</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -201,6 +213,7 @@ export function PatientMedicinePageContent({ patientId }: PatientMedicinePageCon
                     key={prescription.id}
                     prescription={prescription}
                     patientId={patientId}
+                    patientName={patient.name}
                     onEdit={handleEditPrescription}
                     onDelete={handleDeletePrescription}
                   />
