@@ -1,21 +1,4 @@
-export interface Patient {
-  id: number;
-  name: string;
-  phone_number: string;
-  medical_id_number: string;
-  gender: 'male' | 'female';
-  is_taking_medicines: boolean;
-  created_at: string;
-}
-
-export interface Prescription {
-  id: number;
-  patient_id: number;
-  prescription_type: 'daily_monitoring' | 'weekly_refill';
-  valid_till: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import type { Prescription } from '@/lib';
 
 export interface PrescriptionFormData {
   prescription_type: 'daily_monitoring' | 'weekly_refill';

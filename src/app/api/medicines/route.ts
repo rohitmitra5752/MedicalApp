@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { medicineService, CreateMedicineData } from '@/lib/medicines';
-import { initializeDatabase } from '@/lib/db';
+import { initializeDatabase } from '@/lib';
 
 // Initialize database on API load
 initializeDatabase();

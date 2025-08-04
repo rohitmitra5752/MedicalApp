@@ -2,7 +2,7 @@
  * Utility functions for data conversion and common operations
  */
 
-import type { Patient } from './db';
+import type { Patient } from './types';
 
 /**
  * Converts SQLite row data to a properly typed Patient object

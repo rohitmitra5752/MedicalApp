@@ -1,15 +1,6 @@
 import { getDatabase, initializeDatabase } from './db';
 import { convertSQLitePatient, booleanToSQLiteInteger } from './utils';
-
-export interface Patient {
-  id: number;
-  name: string;
-  phone_number: string;
-  medical_id_number: string;
-  gender: 'male' | 'female';
-  is_taking_medicines: boolean;
-  created_at: string;
-}
+import type { Patient } from './types';
 
 // Patient operations
 export function getAllPatients(): Patient[] {

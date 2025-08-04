@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ConfirmationModal, BackButton, Icon, Icons } from '@/components';
 import { PrescriptionModal, PrescriptionCard } from './form-components';
-import type { Patient, Prescription, PrescriptionFormData, PatientMedicinePageContentProps } from './types';
+import type { Patient, Prescription } from '@/lib';
+import type { PrescriptionFormData, PatientMedicinePageContentProps } from './types';
 import { 
   fetchPatientData, 
   handlePrescriptionSubmit, 

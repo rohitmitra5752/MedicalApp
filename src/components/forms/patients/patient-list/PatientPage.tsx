@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ConfirmationModal, BackButton, Icon, Icons } from '@/components';
-import { Patient } from './types';
+import type { Patient } from '@/lib';
 import { 
   fetchPatients, 
   deletePatient

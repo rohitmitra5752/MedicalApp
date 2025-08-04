@@ -1,4 +1,4 @@
-import type { Patient, Parameter } from './types';
+import type { Patient, Parameter } from '@/lib';
 
 // Helper functions to get sex-specific ranges
 export const getParameterMinimum = (parameter: Parameter, patient: Patient | null): number => {

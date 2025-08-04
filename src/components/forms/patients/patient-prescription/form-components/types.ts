@@ -1,4 +1,5 @@
-import type { Medicine, AddMedicineForm } from '../types';
+import type { Medicine } from '@/lib';
+import type { AddMedicineForm } from '../types';
 
 export interface AddMedicineFormProps {
   isVisible: boolean;

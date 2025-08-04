@@ -3,11 +3,22 @@ export { getDatabase, initializeDatabase } from './db';
 
 // Type exports
 export type { 
+  ParameterCategory,
   Parameter, 
   Patient, 
   Report, 
-  ReportWithDetails 
-} from './db';
+  ReportWithDetails,
+  ReportWithCategory,
+  Medicine,
+  MedicineSheet,
+  MedicineWithInventory,
+  Prescription,
+  PrescriptionMedicine,
+  PrescriptionWithDetails,
+  PrescriptionMedicineWithDetails,
+  MedicineInstruction,
+  PrescriptionInstructions
+} from './types';
 
 // Parameter operations
 export { 
@@ -16,6 +27,9 @@ export {
   updateParameter,
   deleteParameter 
 } from './parameters';
+
+// Prescription operations
+export { prescriptionService } from './prescriptions';
 
 // Patient operations
 export { 

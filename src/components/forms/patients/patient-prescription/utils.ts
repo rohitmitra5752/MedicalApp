@@ -1,7 +1,5 @@
+import type { Patient, Medicine, PrescriptionMedicineWithDetails } from '@/lib';
 import type {
-  Patient,
-  Medicine,
-  PrescriptionMedicine,
   MedicineTableRow,
   AddMedicineForm
 } from './types';
@@ -21,7 +19,7 @@ export const fetchPatient = async (patientId: string): Promise<Patient | null> =
 export const fetchPrescriptionMedicines = async (
   patientId: string,
   prescriptionId: string
-): Promise<PrescriptionMedicine[]> => {
+): Promise<PrescriptionMedicineWithDetails[]> => {
   try {
     const response = await fetch(`/api/patients/${patientId}/prescriptions/${prescriptionId}/medicines`);
     const data = await response.json();
@@ -123,7 +121,7 @@ export const getRecurrenceDisplay = (type: string, interval: number): string => 
 };
 
 export const processPrescriptionMedicines = (
-  prescriptionMedicines: PrescriptionMedicine[]
+  prescriptionMedicines: PrescriptionMedicineWithDetails[]
 ): MedicineTableRow[] => {
   return prescriptionMedicines.map(pm => ({
     medicine_id: pm.medicine_id,
@@ -149,14 +147,8 @@ export const getInitialAddMedicineForm = (): AddMedicineForm => ({
 });
 
 export const convertTableRowToEditForm = (
-  row: MedicineTableRow,
-  prescriptionMedicines: PrescriptionMedicine[]
+  row: MedicineTableRow
 ): AddMedicineForm => {
-  // Find the original prescription medicine to get detailed information
-  const prescriptionMedicine = prescriptionMedicines.find(
-    pm => pm.medicine_id === row.medicine_id
-  );
-
   // Parse recurrence string to determine type and interval
   const recurrenceType = row.recurrence === 'Daily' ? 'daily' : 'interval';
   const recurrenceInterval = row.recurrence === 'Daily' ? 1 : parseInt(row.recurrence.replace('Every ', '').replace(' days', '')) || 1;

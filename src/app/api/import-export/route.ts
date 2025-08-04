@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/db';
+import { getDatabase } from '@/lib';
 import { getAllParameterCategories } from '@/lib/parameter-categories';
 import { getAllParameters } from '@/lib/parameters';
 

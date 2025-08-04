@@ -1,7 +1,6 @@
 import { parsePhoneNumber, formatDate } from '@/lib/utils';
+import type { Patient, ReportWithCategory } from '@/lib';
 import type { 
-  Patient,
-  ReportWithCategory,
   CategoryData,
   ImportResults,
   PatientForm 

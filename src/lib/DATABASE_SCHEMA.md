@@ -69,8 +69,7 @@ erDiagram
         integer id PK "PRIMARY KEY, AUTOINCREMENT"
         integer patient_id FK "FOREIGN KEY"
         text prescription_type "NOT NULL, CHECK('daily_monitoring' OR 'weekly_refill')"
-        date expiry_date "NULL"
-        boolean is_active "DEFAULT 1"
+        date valid_till "NULL"
         datetime created_at "DEFAULT CURRENT_TIMESTAMP"
         datetime updated_at "DEFAULT CURRENT_TIMESTAMP"
     }
@@ -79,11 +78,13 @@ erDiagram
         integer id PK "PRIMARY KEY, AUTOINCREMENT"
         integer prescription_id FK "FOREIGN KEY"
         integer medicine_id FK "FOREIGN KEY" 
-        text timing "NOT NULL, CHECK('morning' OR 'afternoon' OR 'evening')"
-        integer tablet_count "NOT NULL, CHECK(tablet_count > 0)"
+        integer morning_count "DEFAULT 0, CHECK(morning_count >= 0)"
+        integer afternoon_count "DEFAULT 0, CHECK(afternoon_count >= 0)"
+        integer evening_count "DEFAULT 0, CHECK(evening_count >= 0)"
         text recurrence_type "NOT NULL, CHECK('daily' OR 'weekly' OR 'interval')"
         integer recurrence_interval "DEFAULT 1"
         integer recurrence_day_of_week "CHECK(BETWEEN 0 AND 6), NULL"
+        date last_executed_date "NULL"
         boolean is_active "DEFAULT 1"
         datetime created_at "DEFAULT CURRENT_TIMESTAMP"
         datetime updated_at "DEFAULT CURRENT_TIMESTAMP"
@@ -144,24 +145,48 @@ erDiagram
    - Purpose: Define prescription plans for patients
    - Key Features: 
      - `prescription_type`: 'daily_monitoring' (track daily consumption) or 'weekly_refill' (weekly medicine refill)
-     - Optional expiry date for time-limited prescriptions
+     - `valid_till`: Optional expiry date for time-limited prescriptions
      - Active/inactive status for prescription management
    - Relationship: Each prescription belongs to a patient
 
 8. **PRESCRIPTION_MEDICINES**
    - Purpose: Define individual medicine entries within prescriptions
    - Key Features:
-     - `timing`: When to take medicine (morning/afternoon/evening)
-     - `tablet_count`: Number of tablets per dose
+     - `morning_count`, `afternoon_count`, `evening_count`: Number of tablets per timing (0 or more)
      - `recurrence_type`: Pattern type ('daily', 'weekly', 'interval')
      - `recurrence_interval`: Frequency (e.g., every 2 days, every 3 weeks)
      - `recurrence_day_of_week`: Specific day for weekly recurrence (0=Sunday, 6=Saturday)
+     - `last_executed_date`: Tracks when this specific medicine instruction was last completed
+   - Individual Medicine Tracking:
+     - Each prescription-medicine combination tracks its own execution independently
+     - Enables granular control over medicine instructions
+     - Users can mark individual medicines as completed rather than entire prescriptions
+   - Medicine Instructions Logic:
+     - Daily monitoring: Show if 1+ days since last execution for this specific medicine
+     - Weekly refill: Show if 7+ days since last execution for this specific medicine
+     - Never executed medicines always show instructions
+     - Recurrence patterns determine when medicine is due again
    - Calculation Support: Structured recurrence data enables automatic scheduling
    - Examples:
      - Daily: `recurrence_type='daily', recurrence_interval=1`
      - Every 2 days: `recurrence_type='interval', recurrence_interval=2`
      - Weekly on Wednesday: `recurrence_type='weekly', recurrence_day_of_week=3`
    - Relationships: Links prescriptions to medicines
+
+### Individual Medicine Instruction Tracking
+
+The system supports granular tracking of medicine instructions at the individual medicine level:
+
+- **Individual Execution Tracking**: Each `prescription_medicine` record has its own `last_executed_date`
+- **Independent Scheduling**: Same medicine in different prescriptions can have different execution schedules
+- **Granular User Control**: Users can mark individual medicine instructions as completed
+- **Flexible Recurrence**: Each medicine can have its own recurrence pattern within a prescription
+- **Optimized Queries**: Single JOIN query retrieves all patient instructions with execution status
+
+**Example Scenarios:**
+- Patient has Aspirin in both daily monitoring (1 tablet/morning) and weekly refill (7 tablets/week)
+- User can mark daily Aspirin as taken without affecting weekly refill schedule
+- Each medicine instruction appears separately in the UI with its own "Done" button
 
 ### Key Relationships
 

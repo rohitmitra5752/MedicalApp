@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/db';
+import { getDatabase } from '@/lib';
 import { medicineService } from '@/lib/medicines';
 
 interface ImportMedicine {

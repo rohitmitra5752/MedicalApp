@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BackButton, ConfirmationModal, AlertModal, Icon, Icons } from '@/components';
 import { formatDate } from '@/lib/utils';
+import type { Patient, ReportWithCategory } from '@/lib';
 import type { 
-  Patient,
-  ReportWithCategory,
   PatientDetailContentProps
 } from './types';
 import {

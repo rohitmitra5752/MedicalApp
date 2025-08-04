@@ -1,4 +1,5 @@
-import type { Prescription, PrescriptionFormData } from './types';
+import type { Prescription } from '@/lib';
+import type { PrescriptionFormData } from './types';
 
 // API Functions
 export const fetchPatientData = async (patientId: string) => {

@@ -1,5 +1,6 @@
 import { parsePhoneNumber } from '@/lib/utils';
-import { Patient, PatientFormData } from './types';
+import type { Patient } from '@/lib';
+import type { PatientFormData } from './types';
 
 // API Functions for Patient Modal
 export const savePatient = async (

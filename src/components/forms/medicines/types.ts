@@ -1,4 +1,4 @@
-import { Medicine, MedicineWithInventory } from '@/lib/db';
+import type { Medicine, MedicineWithInventory } from '@/lib';
 
 export interface MedicineFormData {
   name: string;

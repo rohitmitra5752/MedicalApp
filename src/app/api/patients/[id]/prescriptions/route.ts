@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase, Prescription } from '@/lib/db';
+import { getDatabase } from '@/lib';
+import type { Prescription } from '@/lib';
 
 export async function GET(
   request: NextRequest,

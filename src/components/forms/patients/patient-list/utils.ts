@@ -1,4 +1,4 @@
-import { Patient } from './types';
+import type { Patient } from '@/lib';
 
 // API Functions
 export const fetchPatients = async (): Promise<Patient[]> => {

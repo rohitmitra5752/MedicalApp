@@ -1,4 +1,4 @@
-import { Medicine, MedicineWithInventory } from '@/lib/db';
+import type { Medicine, MedicineWithInventory } from '@/lib';
 import { MedicineFormData, SheetFormData, SheetData, ImportResults, ImportData, ExportData } from './types';
 
 // API utility functions

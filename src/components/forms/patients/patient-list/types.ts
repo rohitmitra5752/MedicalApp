@@ -1,6 +1,4 @@
-// Re-export types from common to maintain backward compatibility
-export type { Patient } from '../common';
-import type { Patient } from '../common';
+import type { Patient } from '@/lib';
 
 // Form component interfaces
 export interface PatientCardProps {

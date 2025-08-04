@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MedicineWithInventory, Medicine } from '@/lib/db';
+import type { MedicineWithInventory, Medicine } from '@/lib';
 import { BackButton, ConfirmationModal } from '@/components';
 import { MedicineForm, AddSheetForm, ImportSection, SearchBar, MedicinesList, ActionList } from './form-components';
 import {

@@ -1,4 +1,5 @@
-import { getDatabase, Medicine, MedicineSheet, MedicineWithInventory } from './db';
+import { getDatabase } from './db';
+import type { Medicine, MedicineSheet, MedicineWithInventory } from './types';
 
 export interface CreateMedicineData {
   name: string;

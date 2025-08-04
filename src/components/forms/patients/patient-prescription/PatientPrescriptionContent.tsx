@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ConfirmationModal, BackButton, Icon, Icons } from '@/components';
+import type { Patient, Medicine, PrescriptionMedicineWithDetails } from '@/lib';
 import type {
-  Patient,
-  Medicine,
-  PrescriptionMedicine,
   MedicineTableRow,
   PatientPrescriptionProps
 } from './types';
@@ -23,7 +21,7 @@ import { AddMedicineForm, MedicineTable } from './form-components';
 
 export function PatientPrescriptionContent({ patientId, prescriptionId }: PatientPrescriptionProps) {
   const [patient, setPatient] = useState<Patient | null>(null);
-  const [prescriptionMedicines, setPrescriptionMedicines] = useState<PrescriptionMedicine[]>([]);
+  const [prescriptionMedicines, setPrescriptionMedicines] = useState<PrescriptionMedicineWithDetails[]>([]);
   const [availableMedicines, setAvailableMedicines] = useState<Medicine[]>([]);
   const [tableData, setTableData] = useState<MedicineTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,7 +101,7 @@ export function PatientPrescriptionContent({ patientId, prescriptionId }: Patien
   };
 
   const handleEditMedicine = (medicineData: MedicineTableRow) => {
-    const editFormData = convertTableRowToEditForm(medicineData, prescriptionMedicines);
+    const editFormData = convertTableRowToEditForm(medicineData);
     setEditData(editFormData);
     setShowAddForm(true);
   };
